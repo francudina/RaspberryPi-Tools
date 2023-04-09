@@ -18,6 +18,9 @@ LOW = 0
 RISING = 1
 FALLING = 0
 
+PUD_UP = 1
+PUD_DOWN = 0
+
 
 class PwdTmp:
 
@@ -35,8 +38,8 @@ def setmode(mode=None):
     print("setmode:", mode)
 
 
-def setup(a: int, b=None):
-    print("setup:", a, b)
+def setup(a: int, b=None, pull_up_down=None):
+    print("setup:", a, b, pull_up_down)
 
 
 def input(a: int, b=None):
@@ -56,9 +59,13 @@ def setwarnings(flag: bool=None):
     print("setwarnings:", flag)
 
 
-def add_event_detect(a=None, b=None, callback=None):
-    print("add_event_detect triggered!")
+def add_event_detect(a=None, b=None, callback=None, bouncetime=None):
+    print("add_event_detect setup: ", a, b, callback, bouncetime)
 
 
-def PWM(a: int, b:int):
+def remove_event_detect(a=None):
+    print("remove_event_detect setup: ", a)
+
+
+def PWM(a: int, b: int):
     return PwdTmp()
