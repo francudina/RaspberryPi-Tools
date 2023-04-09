@@ -11,7 +11,7 @@ class IExecutable(ABC):
         # init
         self.status: ExecutablesStatus = ExecutablesStatus.NOT_STARTED
         self.state: Dict = dict()
-        self.log: List[LogData] = list[LogData]()
+        self.log: List[LogData] = list()
 
     @abstractmethod
     def start(self, **kwargs) -> bool:

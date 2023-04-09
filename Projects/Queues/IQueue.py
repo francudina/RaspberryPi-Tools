@@ -10,7 +10,7 @@ PayloadType = TypeVar('PayloadType')
 class IQueue(Generic[PayloadType]):
 
     def __init__(self, queue_size: int = -1, blocking_queue: bool = True, blocking_timeout: float = None):
-        self.__queue: Queue[PayloadType] = Queue[PayloadType](maxsize=queue_size)
+        self.__queue: Queue[PayloadType] = Queue(maxsize=queue_size)
         self.__blocking_queue: bool = blocking_queue
         self.__blocking_timeout: float = blocking_timeout
 

@@ -27,6 +27,8 @@ class DrivingActivity(IActivity):
         super(DrivingActivity, self).__init__(pipeline_input_type, input_commands)
         # init vars
         self.use_sensors: bool = driving_config[InputConfig.DRIVING_USE_SENSORS_FIELD.value]
+        self.using_front_sensor: bool = driving_config[DrivingConfig.OBSTACLE_FRONT_SENSOR.value][DrivingConfig.OBSTACLE_SENSOR_USING_SENSOR.value]
+        self.using_back_sensor: bool = driving_config[DrivingConfig.OBSTACLE_BACK_SENSOR.value][DrivingConfig.OBSTACLE_SENSOR_USING_SENSOR.value]
         self.use_LEDs: bool = driving_config[InputConfig.DRIVING_USE_LEDs_FIELD.value]
         self.__execution_start: datetime = datetime.now()
         # - motors
@@ -45,18 +47,30 @@ class DrivingActivity(IActivity):
         self.back_wheels_motor.start()
         # - sensors
         if self.use_sensors:
-            self.front_obstacle_sensor: ObstacleSensor = ObstacleSensor(
-                pin_number=driving_config[DrivingConfig.OBSTACLE_SENSOR_PIN_NUMBER.value][DrivingConfig.OBSTACLE_FRONT_SENSOR.value],
-                board_mode=DrivingUtils.get_board_mode(driving_config[DrivingConfig.OBSTACLE_SENSOR_BOARD_MODE.value][DrivingConfig.OBSTACLE_FRONT_SENSOR.value]),
-                with_callback=driving_config[DrivingConfig.OBSTACLE_SENSOR_WITH_CALLBACK.value][DrivingConfig.OBSTACLE_FRONT_SENSOR.value]
-            )
-            self.back_obstacle_sensor: ObstacleSensor = ObstacleSensor(
-                pin_number=driving_config[DrivingConfig.OBSTACLE_SENSOR_PIN_NUMBER.value][DrivingConfig.OBSTACLE_BACK_SENSOR.value],
-                board_mode=DrivingUtils.get_board_mode(driving_config[DrivingConfig.OBSTACLE_SENSOR_BOARD_MODE.value][DrivingConfig.OBSTACLE_BACK_SENSOR.value]),
-                with_callback=driving_config[DrivingConfig.OBSTACLE_SENSOR_WITH_CALLBACK.value][DrivingConfig.OBSTACLE_BACK_SENSOR.value]
-            )
-            self.front_obstacle_sensor.start()
-            self.back_obstacle_sensor.start()
+            # - sensors.front
+            if self.using_front_sensor:
+                front_sensor: {} = driving_config[DrivingConfig.OBSTACLE_FRONT_SENSOR.value]
+                self.front_obstacle_sensor: ObstacleSensor = ObstacleSensor(
+                    pin_number=front_sensor[DrivingConfig.OBSTACLE_SENSOR_PIN_NUMBER.value],
+                    board_mode=DrivingUtils.get_board_mode(front_sensor[DrivingConfig.OBSTACLE_SENSOR_BOARD_MODE.value]),
+                    with_callback=front_sensor[DrivingConfig.OBSTACLE_SENSOR_WITH_CALLBACK.value],
+                    bouncetime=front_sensor[DrivingConfig.OBSTACLE_SENSOR_BOUNCETIME.value]
+                )
+                self.front_obstacle_sensor.start()
+            else:
+                self.front_obstacle_sensor: ObstacleSensor = None
+            # - sensors.back
+            if self.using_back_sensor:
+                back_sensor: {} = driving_config[DrivingConfig.OBSTACLE_BACK_SENSOR.value]
+                self.back_obstacle_sensor: ObstacleSensor = ObstacleSensor(
+                    pin_number=back_sensor[DrivingConfig.OBSTACLE_SENSOR_PIN_NUMBER.value],
+                    board_mode=DrivingUtils.get_board_mode(back_sensor[DrivingConfig.OBSTACLE_SENSOR_BOARD_MODE.value]),
+                    with_callback=back_sensor[DrivingConfig.OBSTACLE_SENSOR_WITH_CALLBACK.value],
+                    bouncetime=back_sensor[DrivingConfig.OBSTACLE_SENSOR_BOUNCETIME.value]
+                )
+                self.back_obstacle_sensor.start()
+            else:
+                self.back_obstacle_sensor: ObstacleSensor = None
         else:
             self.front_obstacle_sensor: ObstacleSensor = None
             self.back_obstacle_sensor: ObstacleSensor = None
@@ -97,8 +111,10 @@ class DrivingActivity(IActivity):
             self.front_wheels_motor.stop()
             self.back_wheels_motor.stop()
             if self.use_sensors:
-                self.front_obstacle_sensor.stop()
-                self.back_obstacle_sensor.stop()
+                if self.using_front_sensor:
+                    self.front_obstacle_sensor.stop()
+                if self.using_back_sensor:
+                    self.back_obstacle_sensor.stop()
             if self.use_LEDs:
                 self.front_LEDs[0].stop()
                 self.front_LEDs[1].stop()
@@ -111,7 +127,7 @@ class DrivingActivity(IActivity):
 
     @staticmethod
     def get_commands(**driving_config) -> List[IDrivingCommand]:
-        input_commands: List[IDrivingCommand] = list[IDrivingCommand]()
+        input_commands: List[IDrivingCommand] = list()
 
         if InputConfig.DRIVING_COMMANDS.value not in driving_config.keys():
             return input_commands

@@ -1,4 +1,6 @@
 import logging
+from abc import abstractmethod
+
 import RPi.GPIO as GPIO
 from typing import Any, Callable
 
@@ -8,22 +10,30 @@ from Projects.Executables.External.Sensors.SensorConfig import SensorConfig
 
 class ISensor(IExternalService):
 
-    def __init__(self, pin_number: int, pin_direction: GPIO.OUT or GPIO.IN, board_mode: GPIO.BCM or GPIO.BOARD,
-                 with_callback: bool, callback_edge: GPIO.RISING or GPIO.FALLING or None, callback_func: Callable):
+    def __init__(self,
+                 pin_number: int,
+                 pin_direction: GPIO.OUT or GPIO.IN,
+                 board_mode: GPIO.BCM or GPIO.BOARD,
+                 with_callback: bool,
+                 bouncetime: int,
+                 pull_up_down: GPIO.PUD_UP or GPIO.PUD_DOWN,
+                 callback_edge: GPIO.RISING or GPIO.FALLING or None,
+                 callback_func: Callable):
         super(ISensor, self).__init__(pin_number, pin_direction, board_mode)
         # input values
         # - callback
         self.with_callback: bool = with_callback
         self.callback_func: Callable = None if not with_callback else callback_func
         self.callback_edge = None if not with_callback else callback_edge
+        self.bouncetime = None if not with_callback else bouncetime
+        self.pull_up_down = None if not with_callback else pull_up_down
 
 # methods
     # public
     def new_result(self, **kwargs) -> Any:
         if self.with_callback:
-            # callback was triggered!
-            # used when someone set this method as callback!
-            return self.__new_result_with_callback(**kwargs)
+            raise Exception(f"Cannot use ISensor.new_result() for events! "
+                            f"Instead use custom method with fixed expected arguments!")
         else:
             return self.__new_result_without_callback(**kwargs)
 
@@ -37,7 +47,12 @@ class ISensor(IExternalService):
             GPIO.setwarnings(False)
 
             if self.with_callback:
-                GPIO.add_event_detect(self.pin_number, self.callback_edge, callback=self.callback_func)
+                GPIO.setup(self.pin_number, self.pin_direction, self.pull_up_down)
+                GPIO.add_event_detect(
+                    self.pin_number,
+                    self.callback_edge,
+                    callback=self.callback_func,
+                    bouncetime=self.bouncetime)
             else:
                 GPIO.setup(self.pin_number, self.pin_direction)
 
@@ -61,5 +76,6 @@ class ISensor(IExternalService):
         else:
             raise ValueError(f'Wrong pin_direction set! Expected: GPIO.OUT or GPIO.IN value!')
 
-    def __new_result_with_callback(self, **kwargs):
-        return True
+    @abstractmethod
+    def _new_result_with_callback(self, **kwargs):
+        pass

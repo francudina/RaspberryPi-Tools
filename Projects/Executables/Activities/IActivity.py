@@ -19,7 +19,7 @@ class IActivity(IQueue[ICommand], ICompensating):
         # - insert commands
         self.__add_commands(input_commands)
         # - executed
-        self.__executed_commands: deque[ICommand] = deque[ICommand]()
+        self.__executed_commands: deque[ICommand] = deque()
         # - additional
         self.__stop_received: bool = False
 

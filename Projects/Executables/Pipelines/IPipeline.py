@@ -14,7 +14,7 @@ class IPipeline(IQueue[IActivity], ICompensating):
         super(IPipeline, self).__init__(queue_size, blocking_queue, blocking_timeout)
         # init vars
         self.__pipeline_input_type: PipelineInputType = pipeline_input_type
-        self.__executed_activities: deque[IActivity] = deque[IActivity]()
+        self.__executed_activities: deque[IActivity] = deque()
         # additional
         self.__stop_received: bool = False
         self.__pause_received: bool = False
