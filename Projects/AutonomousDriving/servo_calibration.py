@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     # set servo angle
     print("# starting with calibration...")
-    servo.new_result(input_angle=MotorConfig.SERVO_STARTING_POINT_ANGLE.value)
+    servo.new_result(input_angle=MotorConfig.SERVO_STARTING_POINT.value)
     print("> done")
 
     print("# servo cleanup...")
