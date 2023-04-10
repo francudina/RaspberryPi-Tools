@@ -145,7 +145,7 @@ class DrivingActivity(IActivity):
                 # self.back_LEDs[1].stop()
             return True
         except Exception as e:
-            print(f"Exception in DrivingActivity._pre_stop_method() method: {e}")
+            print(f"Exception in DrivingActivity._pre_stop_method() method: {e}", flush=True)
             return False
 
     @staticmethod

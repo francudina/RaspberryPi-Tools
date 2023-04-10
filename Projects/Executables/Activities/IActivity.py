@@ -6,6 +6,7 @@ from typing import List
 
 from Projects.Executables.Commands.ICommand import ICommand
 from Projects.Executables.Compensating.ICompensating import ICompensating
+from Projects.Executables.ExecutablesStatus import ExecutablesStatus
 from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
 from Projects.Queues.IQueue import IQueue
 
@@ -31,38 +32,54 @@ class IActivity(IQueue[ICommand], ICompensating):
 
     def start(self, **kwargs) -> bool:
         self.execution_start = datetime.now()
+        self.status = ExecutablesStatus.IN_PROGRESS
         current_command: ICommand = self.next()
         while current_command is not None and not self.__stop_received:
             # for compensation process
             self.__executed_commands.appendleft(current_command)
 
-            print(f"\n > command {current_command.activity_type}: START")
+            print(f"\n > command {current_command.activity_type}: START", flush=True)
 
             current_command.execution_start = datetime.now()
             started: bool = current_command.start(activity=self)
             current_command.execution_end = datetime.now()
+
+            self.status = ExecutablesStatus.DONE if started \
+                else ExecutablesStatus.BEFORE_COMPENSATION
 
             # reset events if needed after command execution!
             self._event_reset(command=current_command)
 
             if not started:
                 self.execution_end = datetime.now()
-                print(f" > command {current_command.activity_type} START => FAILED")
+                print(f" > command {current_command.activity_type} START => FAILED", flush=True)
 
-                print(f" \t> compensating command: START")
+                print(f" \t> compensating command: START", flush=True)
                 compensated: bool = current_command.compensate(activity=self)
-                print(f" \t> compensating command: END {'=> FAILED again' if not compensated else ''}")
+                print(f" \t> compensating command: END {'=> FAILED again' if not compensated else ''}", flush=True)
+
+                self.status = ExecutablesStatus.DONE_WITH_COMPENSATION if compensated \
+                    else ExecutablesStatus.COMPENSATION_FAILED
+
+                current_command.status = self.status
 
                 # if failed to compensate then return IActivity execution failed
                 return compensated
 
+            self.status = ExecutablesStatus.BEFORE_STOP
+
             ended: bool = current_command.stop(activity=self)
+            self.status = ExecutablesStatus.FINISHED if ended \
+                else ExecutablesStatus.STOP_FAILED
+
+            current_command.status = self.status
+
             if not ended:
                 self.execution_end = datetime.now()
-                print(f" > command {current_command.activity_type} END => FAILED")
+                print(f" > command {current_command.activity_type} END => FAILED", flush=True)
                 # todo do something if stop() fails
                 return False
-            print(f" > command {current_command.activity_type}: END")
+            print(f" > command {current_command.activity_type}: END", flush=True)
 
             current_command = self.next()
 

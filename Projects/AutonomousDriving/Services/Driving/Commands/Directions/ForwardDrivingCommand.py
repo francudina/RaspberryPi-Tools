@@ -15,7 +15,7 @@ class ForwardDrivingCommand(IDrivingCommand):
         self.execution_time: timedelta = execution_time
 
     def start(self, **kwargs) -> bool:
-        print(f"  > direction {self.direction_type} ...")
+        print(f"  > direction {self.direction_type} ...", flush=True)
         return self.__execution(DirectionType.FORWARD, method_name='start', **kwargs)
 
     def stop(self, **kwargs) -> bool:

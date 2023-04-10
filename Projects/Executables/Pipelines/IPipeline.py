@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from Projects.Executables.Activities.IActivity import IActivity
 from Projects.Executables.Compensating.ICompensating import ICompensating
+from Projects.Executables.ExecutablesStatus import ExecutablesStatus
 from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
 from Projects.Queues.IQueue import IQueue
 
@@ -23,16 +24,19 @@ class IPipeline(IQueue[IActivity], ICompensating):
     # public
     def start(self, **kwargs) -> bool:
         current_activity: IActivity = self.next()
+        self.status = ExecutablesStatus.IN_PROGRESS
         while current_activity is not None and not self.__stop_received and not self.__pause_received:
 
             started = current_activity.start()
             if not started:
                 passed: bool = self.compensate()
-                return False
+
+            self.status = current_activity.status
 
             ended = current_activity.stop()
+            self.status = current_activity.status
+
             if not ended:
-                passed: bool = self.compensate()
                 return False
 
             # for compensation process

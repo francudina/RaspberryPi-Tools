@@ -22,7 +22,7 @@ class ConsoleInput(IPipelineInput):
         while iter_num > 1:
             iter_num -= 1
 
-            input_data: str = input(f'\n## Insert ACTIVITY Config file path (attempts remaining: {iter_num}): ')
+            input_data: str = self._read_input(iter_num)
             file_data: Dict = self.__read_file(input_data)
             if file_data is None:
                 continue
@@ -33,6 +33,9 @@ class ConsoleInput(IPipelineInput):
             break
 
         return activity
+
+    def _read_input(self, iter_num: int) -> str:
+        return input(f'\n## Insert ACTIVITY Config file path (attempts remaining: {iter_num}): ')
 
 # private
     def __get_activity(self, **file_data) -> IActivity:
@@ -54,5 +57,5 @@ class ConsoleInput(IPipelineInput):
             with open(file_path, 'r', encoding="utf-8") as fh:
                 return json.loads(fh.read())
         except Exception as e:
-            print(f"(e) Exception: {e}")
+            print(f"(e) Exception: {e}", flush=True)
             return None
