@@ -29,3 +29,4 @@ class MotorConfig(Enum):
     # - servo
     BASIC_MOTOR_EXECUTION_TIME = 'execution_time'
     BASIC_MOTOR_DIRECTION = 'direction'
+    BASIC_MOTOR_EVENT = 'event'

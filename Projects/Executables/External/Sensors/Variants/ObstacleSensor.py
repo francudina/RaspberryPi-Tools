@@ -1,14 +1,15 @@
-import RPi.GPIO as GPIO
-from datetime import datetime
-from typing import List, Dict, Callable, Any
+from abc import ABC
+from typing import Callable
 
-from Projects.Executables.ExecutablesStatus import ExecutablesStatus
+import RPi.GPIO as GPIO
+
 from Projects.Executables.External.Sensors.ISensor import ISensor
 
 
-class ObstacleSensor(ISensor):
+class ObstacleSensor(ISensor, ABC):
 
-    def __init__(self, pin_number: int, board_mode: GPIO.BCM or GPIO.BOARD, with_callback: bool, bouncetime: int):
+    def __init__(self, pin_number: int,
+                 board_mode: GPIO.BCM or GPIO.BOARD, with_callback: bool, bouncetime: int, callback_func: Callable):
         # if with_callback then sensor gets value with GPIO.LOW value, so GPIO.FALLING is set!
         super(ObstacleSensor, self).__init__(
             pin_number,
@@ -18,11 +19,5 @@ class ObstacleSensor(ISensor):
             bouncetime,
             GPIO.PUD_UP,
             GPIO.FALLING,
-            self._new_result_with_callback
+            callback_func
         )
-
-    def _new_result_with_callback(self, channel):
-        state = GPIO.input(channel)
-        if state == GPIO.LOW:
-            print(f"\t+ event detected on channel '{channel}' at {datetime.now().strftime('%H:%M:%S.%f')}")
-

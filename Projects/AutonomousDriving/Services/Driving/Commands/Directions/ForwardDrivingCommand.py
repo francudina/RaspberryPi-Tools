@@ -15,7 +15,7 @@ class ForwardDrivingCommand(IDrivingCommand):
         self.execution_time: timedelta = execution_time
 
     def start(self, **kwargs) -> bool:
-        print(f"  > direction {self.direction_type} ...")
+        print(f"  > direction {self.direction_type} ...", flush=True)
         return self.__execution(DirectionType.FORWARD, method_name='start', **kwargs)
 
     def stop(self, **kwargs) -> bool:
@@ -42,13 +42,20 @@ class ForwardDrivingCommand(IDrivingCommand):
                     activity.front_LEDs[1].pause()
 
             # wheels to position
-            # activity.front_wheels_motor.start()
             activity.front_wheels_motor.new_result(input_angle=self.wheel_angle)
-            # activity.front_wheels_motor.stop()
+
             # start back wheels rotation
-            # activity.back_wheels_motor.start()
-            activity.back_wheels_motor.new_result(execution_time=self.execution_time, direction=direction_type)
-            # activity.back_wheels_motor.stop()
+            expected_execution_time: timedelta = self.execution_time
+            if method_name == 'compensate':
+                # if "compensate" then compensate previous command with the
+                # same amount of execution time but different direction!
+                expected_execution_time = self.total_execution_time()
+
+            passed: bool = activity.back_wheels_motor.new_result(
+                execution_time=expected_execution_time,
+                direction=direction_type,
+                event=activity.get_obstacle_sensor_front_event()
+            )
 
             if activity.use_LEDs:
                 if wheel_angle_delta > 0 and wheel_angle_delta > MotorConfig.SERVO_STARTING_POINT_ANGLE_DELTA.value:
@@ -56,11 +63,13 @@ class ForwardDrivingCommand(IDrivingCommand):
                 elif wheel_angle_delta < 0 and - wheel_angle_delta > MotorConfig.SERVO_STARTING_POINT_ANGLE_DELTA.value:
                     activity.front_LEDs[1].resume()
 
-            return True
+            return passed
+
         except Exception as e:
             logging.error(f'Error during {self.__class__.__name__}.{method_name}() method: {e}')
             return False
 
     def __validate(self, **kwargs):
         if DrivingConfig.COMMAND_ACTIVITY_ARG.value not in kwargs.keys():
-            raise ValueError(f'{self.__class__.__name__} method must have DrivingActivity instance sent as method argument!')
+            raise ValueError(f'{self.__class__.__name__} method must have '
+                             f'DrivingActivity instance sent as method argument!')

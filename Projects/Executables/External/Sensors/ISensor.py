@@ -40,6 +40,13 @@ class ISensor(IExternalService):
     def start(self, **kwargs) -> bool:
         return self.__configure()
 
+    def stop(self, **kwargs) -> bool:
+        if self.with_callback:
+            GPIO.remove_event_detect(self.pin_number)
+        else:
+            GPIO.cleanup(self.pin_number)
+        return True
+
     # private
     def __configure(self) -> bool:
         try:

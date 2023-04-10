@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from threading import Event
 from typing import List, Dict
 
 from Projects.AutonomousDriving.Services.Driving.Commands.DirectionType import DirectionType
@@ -15,7 +16,6 @@ from Projects.Executables.External.LightBulbs.ExternalLED import ExternalLED
 from Projects.Executables.External.Motors.DriveMotor import DriveMotor
 from Projects.Executables.External.Motors.MotorConfig import MotorConfig
 from Projects.Executables.External.Motors.ServoSG90 import ServoSG90
-from Projects.Executables.External.Sensors.Variants.ObstacleSensor import ObstacleSensor
 from Projects.Executables.Pipelines.Inputs.InputConfig import InputConfig
 from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
 
@@ -24,13 +24,12 @@ class DrivingActivity(IActivity):
 
     def __init__(self, pipeline_input_type: PipelineInputType, **driving_config):
         input_commands: List[IDrivingCommand] = DrivingActivity.get_commands(**driving_config)
-        super(DrivingActivity, self).__init__(pipeline_input_type, input_commands)
+        super(DrivingActivity, self).__init__(pipeline_input_type, input_commands, total_events=2)
         # init vars
         self.use_sensors: bool = driving_config[InputConfig.DRIVING_USE_SENSORS_FIELD.value]
         self.using_front_sensor: bool = driving_config[DrivingConfig.OBSTACLE_FRONT_SENSOR.value][DrivingConfig.OBSTACLE_SENSOR_USING_SENSOR.value]
         self.using_back_sensor: bool = driving_config[DrivingConfig.OBSTACLE_BACK_SENSOR.value][DrivingConfig.OBSTACLE_SENSOR_USING_SENSOR.value]
         self.use_LEDs: bool = driving_config[InputConfig.DRIVING_USE_LEDs_FIELD.value]
-        self.__execution_start: datetime = datetime.now()
         # - motors
         self.front_wheels_motor: ServoSG90 = ServoSG90(
             pin_number=driving_config[DrivingConfig.SERVO_CONFIG.value][DrivingConfig.SERVO_PIN_NUMBER.value],
@@ -47,10 +46,13 @@ class DrivingActivity(IActivity):
         self.back_wheels_motor.start()
         # - sensors
         if self.use_sensors:
+            from Projects.AutonomousDriving.Sensors.DrivingObstacleSensor import DrivingObstacleSensor
             # - sensors.front
             if self.using_front_sensor:
                 front_sensor: {} = driving_config[DrivingConfig.OBSTACLE_FRONT_SENSOR.value]
-                self.front_obstacle_sensor: ObstacleSensor = ObstacleSensor(
+                self.front_obstacle_sensor: DrivingObstacleSensor = DrivingObstacleSensor(
+                    activity=self,
+                    for_direction=DirectionType.FORWARD,
                     pin_number=front_sensor[DrivingConfig.OBSTACLE_SENSOR_PIN_NUMBER.value],
                     board_mode=DrivingUtils.get_board_mode(front_sensor[DrivingConfig.OBSTACLE_SENSOR_BOARD_MODE.value]),
                     with_callback=front_sensor[DrivingConfig.OBSTACLE_SENSOR_WITH_CALLBACK.value],
@@ -58,11 +60,13 @@ class DrivingActivity(IActivity):
                 )
                 self.front_obstacle_sensor.start()
             else:
-                self.front_obstacle_sensor: ObstacleSensor = None
+                self.front_obstacle_sensor: DrivingObstacleSensor = None
             # - sensors.back
             if self.using_back_sensor:
                 back_sensor: {} = driving_config[DrivingConfig.OBSTACLE_BACK_SENSOR.value]
-                self.back_obstacle_sensor: ObstacleSensor = ObstacleSensor(
+                self.back_obstacle_sensor: DrivingObstacleSensor = DrivingObstacleSensor(
+                    activity=self,
+                    for_direction=DirectionType.BACKWARD,
                     pin_number=back_sensor[DrivingConfig.OBSTACLE_SENSOR_PIN_NUMBER.value],
                     board_mode=DrivingUtils.get_board_mode(back_sensor[DrivingConfig.OBSTACLE_SENSOR_BOARD_MODE.value]),
                     with_callback=back_sensor[DrivingConfig.OBSTACLE_SENSOR_WITH_CALLBACK.value],
@@ -70,10 +74,11 @@ class DrivingActivity(IActivity):
                 )
                 self.back_obstacle_sensor.start()
             else:
-                self.back_obstacle_sensor: ObstacleSensor = None
+                self.back_obstacle_sensor: DrivingObstacleSensor = None
         else:
-            self.front_obstacle_sensor: ObstacleSensor = None
-            self.back_obstacle_sensor: ObstacleSensor = None
+            from Projects.AutonomousDriving.Sensors.DrivingObstacleSensor import DrivingObstacleSensor
+            self.front_obstacle_sensor: DrivingObstacleSensor = None
+            self.back_obstacle_sensor: DrivingObstacleSensor = None
         # - LEDs
         if self.use_LEDs:
             self.front_LEDs: List[ExternalLED] = [
@@ -106,6 +111,24 @@ class DrivingActivity(IActivity):
             self.front_LEDs: List[ExternalLED] = []
             self.back_LEDs: List[ExternalLED] = []
 
+    def get_obstacle_sensor_front_event(self) -> Event:
+        return self.events[0]
+
+    def get_obstacle_sensor_back_event(self) -> Event:
+        return self.events[1]
+
+    def _event_reset(self, command: IDrivingCommand) -> None:
+        if command.direction_type == DirectionType.FORWARD:
+            # if action was forward then reset front sensor event
+            self.get_obstacle_sensor_front_event().clear()
+        elif command.direction_type == DirectionType.BACKWARD:
+            # if action was backward then reset back sensor event
+            self.get_obstacle_sensor_back_event().clear()
+        elif command.direction_type == DirectionType.NONE:
+            # if there was no action then reset front & back sensor event
+            self.get_obstacle_sensor_front_event().clear()
+            self.get_obstacle_sensor_back_event().clear()
+
     def _pre_stop_method(self, **kwargs):
         try:
             self.front_wheels_motor.stop()
@@ -122,7 +145,7 @@ class DrivingActivity(IActivity):
                 # self.back_LEDs[1].stop()
             return True
         except Exception as e:
-            print(f"Exception in DrivingActivity._pre_stop_method() method: {e}")
+            print(f"Exception in DrivingActivity._pre_stop_method() method: {e}", flush=True)
             return False
 
     @staticmethod
@@ -168,9 +191,6 @@ class DrivingActivity(IActivity):
             else:
                 continue
         return input_commands
-
-    def execution_time(self):
-        return datetime.now() - self.__execution_start
 
     # private
     @staticmethod

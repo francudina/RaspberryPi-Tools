@@ -5,6 +5,7 @@ from typing import Any
 
 from Projects.Executables.External.IExternalService import IExternalService
 from Projects.Executables.External.Motors.MotorConfig import MotorConfig
+from Projects.Executables.Utils import TimeUtils
 
 
 class ServoSG90(IExternalService):
@@ -24,7 +25,8 @@ class ServoSG90(IExternalService):
             input_value: float = float(kwargs[MotorConfig.SERVO_INPUT_ANGLE.value])
             next_cycle = self.__calculate_angle_cycle(input_value)
             self.pwm_channel.ChangeDutyCycle(next_cycle)
-            time.sleep(1)
+            # time.sleep(1)
+            interrupted: bool = TimeUtils.blocking_sleep(1)
 
             return True, next_cycle
         except Exception as e:
