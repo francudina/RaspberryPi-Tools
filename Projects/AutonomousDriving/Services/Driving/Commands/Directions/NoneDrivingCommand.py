@@ -6,6 +6,7 @@ from Projects.AutonomousDriving.Services.Driving.Commands.DirectionType import D
 from Projects.AutonomousDriving.Services.Driving.Commands.IDrivingCommand import IDrivingCommand
 from Projects.AutonomousDriving.Services.Driving.DrivingConfig import DrivingConfig
 from Projects.Executables.External.Motors.MotorConfig import MotorConfig
+from Projects.Executables.Utils import TimeUtils
 
 
 class NoneDrivingCommand(IDrivingCommand):
@@ -25,7 +26,7 @@ class NoneDrivingCommand(IDrivingCommand):
     def compensate(self, **kwargs) -> bool:
         return True
 
-    # private
+# private
     def __execution(self, method_name: str, **kwargs) -> bool:
         self.__validate(**kwargs)
 
@@ -34,15 +35,18 @@ class NoneDrivingCommand(IDrivingCommand):
 
         try:
             # wheels to position
-            # activity.front_wheels_motor.start()
             activity.front_wheels_motor.new_result(input_angle=self.wheel_angle)
-            time.sleep(self.execution_time.total_seconds())
-            # activity.front_wheels_motor.stop()
-            return True
+            # time.sleep(self.execution_time.total_seconds())
+            interrupted: bool = TimeUtils.blocking_sleep(self.execution_time.total_seconds())
+
+            # True only if operation wasn't interrupted
+            return not interrupted
+
         except Exception as e:
             logging.error(f'Error during {self.__class__.__name__}.{method_name}() method: {e}')
             return False
 
     def __validate(self, **kwargs):
         if DrivingConfig.COMMAND_ACTIVITY_ARG.value not in kwargs.keys():
-            raise ValueError(f'{self.__class__.__name__} method must have DrivingActivity instance sent as method argument!')
+            raise ValueError(f'{self.__class__.__name__} method must have '
+                             f'DrivingActivity instance sent as method argument!')

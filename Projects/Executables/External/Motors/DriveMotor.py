@@ -1,4 +1,5 @@
 import logging
+from threading import Event
 from time import sleep
 import RPi.GPIO as GPIO
 from typing import Any
@@ -7,6 +8,7 @@ from datetime import timedelta
 from Projects.AutonomousDriving.Services.Driving.Commands.DirectionType import DirectionType
 from Projects.Executables.External.IExternalService import IExternalService
 from Projects.Executables.External.Motors.MotorConfig import MotorConfig
+from Projects.Executables.Utils import TimeUtils
 
 
 class DriveMotor(IExternalService):
@@ -27,11 +29,12 @@ class DriveMotor(IExternalService):
         # - other
         self.pwm_channel = None  # configured later in configure() method
 
-    def new_result(self, **kwargs) -> Any:
+    def new_result(self, **kwargs) -> bool:
         self.__validate(**kwargs)
         execution_time: timedelta = kwargs[MotorConfig.BASIC_MOTOR_EXECUTION_TIME.value]
         direction: DirectionType = kwargs[MotorConfig.BASIC_MOTOR_DIRECTION.value]
-        return self.__execute_in_direction(direction, execution_time)
+        event: Event = kwargs[MotorConfig.BASIC_MOTOR_EVENT.value]
+        return self.__execute_in_direction(direction, execution_time, event)
 
     def start(self, **kwargs) -> bool:
         return self.__configure()
@@ -67,7 +70,7 @@ class DriveMotor(IExternalService):
             logging.error(f'Error in DriveMotor.__configure() method: {e}')
             return False
 
-    def __execute_in_direction(self, direction: DirectionType, execution_time: timedelta):
+    def __execute_in_direction(self, direction: DirectionType, execution_time: timedelta, event: Event):
         try:
             if direction == DirectionType.FORWARD:
                 # forward
@@ -90,13 +93,16 @@ class DriveMotor(IExternalService):
             self.pwm_channel.ChangeDutyCycle(int(MotorConfig.BASIC_MOTOR_SPEED.value))
 
             # execution time ...
-            sleep(execution_time.total_seconds())
+            # sleep(execution_time.total_seconds())
+            interrupted: bool = TimeUtils.nonblocking_sleep(execution_time.total_seconds(), event)
 
             # motor stop
             GPIO.output(self.pin_number_sby, GPIO.LOW)
 
-            return True
-        except:
+            # True only if operation wasn't interrupted
+            return not interrupted
+
+        except Exception as e:
             return False
 
     def __validate(self, **kwargs):
@@ -106,3 +112,6 @@ class DriveMotor(IExternalService):
         if MotorConfig.BASIC_MOTOR_DIRECTION.value not in kwargs.keys():
             raise ValueError(f'DriveMotor.new_result(**kwargs) must have '
                              f'{MotorConfig.BASIC_MOTOR_DIRECTION.value} key specified!')
+        if MotorConfig.BASIC_MOTOR_EVENT.value not in kwargs.keys():
+            raise ValueError(f'DriveMotor.new_result(**kwargs) must have '
+                             f'{MotorConfig.BASIC_MOTOR_EVENT.value} key specified!')
