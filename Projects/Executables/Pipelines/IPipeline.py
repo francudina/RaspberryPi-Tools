@@ -24,18 +24,19 @@ class IPipeline(IQueue[IActivity], ICompensating):
     def start(self, **kwargs) -> bool:
         current_activity: IActivity = self.next()
         while current_activity is not None and not self.__stop_received and not self.__pause_received:
-            # for compensation process
-            self.__executed_activities.appendleft(current_activity)
 
             started = current_activity.start()
             if not started:
-                self.compensate()
+                passed: bool = self.compensate()
                 return False
 
             ended = current_activity.stop()
             if not ended:
-                self.compensate()
+                passed: bool = self.compensate()
                 return False
+
+            # for compensation process
+            self.__executed_activities.appendleft(current_activity)
 
             current_activity = self.next()
 

@@ -37,4 +37,4 @@ class DrivingObstacleSensor(ObstacleSensor):
             self.activity.get_obstacle_sensor_back_event().set()
 
         # set info that obstacle was found
-        print(f"\t obstacle detected at {datetime.now().strftime('%H:%M:%S.%f')}")
+        print(f"\t(!) obstacle detected at {datetime.now().strftime('%H:%M:%S.%f')}", flush=True)

@@ -1,6 +1,3 @@
-import json
-from typing import Dict
-
 from Projects.Executables.Activities.IActivity import IActivity
 from Projects.Executables.Pipelines.IPipeline import IPipeline
 from Projects.Executables.Pipelines.Inputs.IPipelineInput import IPipelineInput
@@ -8,8 +5,6 @@ from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInpu
 
 
 if __name__ == "__main__":
-
-    # config_path = 'driving_input.json'
 
     # pipeline config
     # - type
@@ -19,7 +14,7 @@ if __name__ == "__main__":
     # - pipeline
     pipeline = IPipeline(pipeline_input_type)
 
-    # iteration start!
+    # iteration start
     while True:
         activity: IActivity = pipeline_input.next_input()
         if activity is None:

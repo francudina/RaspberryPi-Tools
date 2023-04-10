@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from threading import Event
 from typing import List, Dict
 
-from Projects.AutonomousDriving.Sensors.DrivingObstacleSensor import DrivingObstacleSensor
 from Projects.AutonomousDriving.Services.Driving.Commands.DirectionType import DirectionType
 from Projects.AutonomousDriving.Services.Driving.Commands.Directions.BackwardDrivingCommand import \
     BackwardDrivingCommand
@@ -17,7 +16,6 @@ from Projects.Executables.External.LightBulbs.ExternalLED import ExternalLED
 from Projects.Executables.External.Motors.DriveMotor import DriveMotor
 from Projects.Executables.External.Motors.MotorConfig import MotorConfig
 from Projects.Executables.External.Motors.ServoSG90 import ServoSG90
-from Projects.Executables.External.Sensors.Variants.ObstacleSensor import ObstacleSensor
 from Projects.Executables.Pipelines.Inputs.InputConfig import InputConfig
 from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
 
@@ -48,6 +46,7 @@ class DrivingActivity(IActivity):
         self.back_wheels_motor.start()
         # - sensors
         if self.use_sensors:
+            from Projects.AutonomousDriving.Sensors.DrivingObstacleSensor import DrivingObstacleSensor
             # - sensors.front
             if self.using_front_sensor:
                 front_sensor: {} = driving_config[DrivingConfig.OBSTACLE_FRONT_SENSOR.value]
@@ -61,7 +60,7 @@ class DrivingActivity(IActivity):
                 )
                 self.front_obstacle_sensor.start()
             else:
-                self.front_obstacle_sensor: ObstacleSensor = None
+                self.front_obstacle_sensor: DrivingObstacleSensor = None
             # - sensors.back
             if self.using_back_sensor:
                 back_sensor: {} = driving_config[DrivingConfig.OBSTACLE_BACK_SENSOR.value]
@@ -75,10 +74,11 @@ class DrivingActivity(IActivity):
                 )
                 self.back_obstacle_sensor.start()
             else:
-                self.back_obstacle_sensor: ObstacleSensor = None
+                self.back_obstacle_sensor: DrivingObstacleSensor = None
         else:
-            self.front_obstacle_sensor: ObstacleSensor = None
-            self.back_obstacle_sensor: ObstacleSensor = None
+            from Projects.AutonomousDriving.Sensors.DrivingObstacleSensor import DrivingObstacleSensor
+            self.front_obstacle_sensor: DrivingObstacleSensor = None
+            self.back_obstacle_sensor: DrivingObstacleSensor = None
         # - LEDs
         if self.use_LEDs:
             self.front_LEDs: List[ExternalLED] = [

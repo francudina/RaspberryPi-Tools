@@ -41,12 +41,10 @@ class ConsoleInput(IPipelineInput):
 
             # todo dodaj i druge tipove aktivnosti ovdje da se kreiraju!
             if activity_type == ActivityType.DRIVING.value:
-                return DrivingActivity(
-                    pipeline_input_type=self.input_type,
-                    **file_data
-                )
+                return DrivingActivity(pipeline_input_type=self.input_type, **file_data)
             else:
                 return None
+
         except Exception as e:
             logging.error(f"Error during activity creation: {e}")
             return None
