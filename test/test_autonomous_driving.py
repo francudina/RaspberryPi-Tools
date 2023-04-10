@@ -44,4 +44,5 @@ class Test(TestCase):
             ]
 
             self.assertEqual(started, True)
+            self.assertNotEqual(pipeline_status, ExecutablesStatus.FAILED)
             self.assertEqual(activity_passed, pipeline_passed)
