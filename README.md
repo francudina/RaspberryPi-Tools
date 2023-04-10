@@ -1,6 +1,7 @@
+# Raspberry-Pi-Tools
 ![Build](https://github.com/francudina/Raspberry-Pi-Tools/actions/workflows/push_pullreq.yaml/badge.svg)
 
-# Raspberry-Pi-Tools
+
 Repository used as a playground for Raspberry Pi ideas
 
 ### Getting Started: `AutonomousDriving`
