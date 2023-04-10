@@ -55,8 +55,3 @@ class ExternalLED(IExternalService):
         except Exception as e:
             logging.error(f'Error in ExternalLED.__configure() method: {e}')
             return False
-
-    def __validate(self, **kwargs):
-        if LedsConfig.EXECUTION_TIME.value not in kwargs.keys():
-            raise ValueError(f'ExternalLED.new_result(**kwargs) must have '
-                             f'{LedsConfig.EXECUTION_TIME.value} key specified!')
