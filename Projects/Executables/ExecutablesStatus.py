@@ -17,4 +17,4 @@ class ExecutablesStatus(Enum):
     BEFORE_STOP = 8
     STOP_FAILED = 9
     FINISHED = 10
-
+    FAILED = 11

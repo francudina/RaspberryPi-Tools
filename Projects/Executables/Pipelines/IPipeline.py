@@ -27,22 +27,29 @@ class IPipeline(IQueue[IActivity], ICompensating):
         self.status = ExecutablesStatus.IN_PROGRESS
         while current_activity is not None and not self.__stop_received and not self.__pause_received:
 
-            started = current_activity.start()
-            if not started:
-                passed: bool = self.compensate()
+            try:
+                started = current_activity.start()
+                if not started:
+                    passed: bool = self.compensate()
 
-            self.status = current_activity.status
+                self.status = current_activity.status
 
-            ended = current_activity.stop()
-            self.status = current_activity.status
+                ended = current_activity.stop()
+                self.status = current_activity.status
 
-            if not ended:
+                if not ended:
+                    return False
+
+                # for compensation process
+                self.__executed_activities.appendleft(current_activity)
+
+                current_activity = self.next()
+
+            except Exception as e:
+                print(f"(e) Exception: {e}", flush=True)
+
+                self.status = ExecutablesStatus.FAILED
                 return False
-
-            # for compensation process
-            self.__executed_activities.appendleft(current_activity)
-
-            current_activity = self.next()
 
         # all passed if stop isn't received!
         return not self.__stop_received or self.__pause_received

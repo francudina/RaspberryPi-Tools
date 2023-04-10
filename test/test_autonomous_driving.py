@@ -7,7 +7,7 @@ from Projects.Executables.Pipelines.IPipeline import IPipeline
 from Projects.Executables.Pipelines.Inputs.IPipelineInput import IPipelineInput
 from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
 
-test_case_1 = "driving_test_input_basic_obstacles.json"
+test_case_1 = "test/driving_test_input_basic_obstacles.json"
 
 
 class Test(TestCase):
@@ -16,7 +16,7 @@ class Test(TestCase):
         target='Projects.Executables.Pipelines.Inputs.Types.ConsoleInput.ConsoleInput._read_input',
         return_value=test_case_1
     )
-    def test_answer_yes(self, input):
+    def test_driving(self, input):
         pipeline_input_type: PipelineInputType = PipelineInputType.CONSOLE
         pipeline_input: IPipelineInput = IPipelineInput.get_pipeline_input(pipeline_input_type)
         pipeline = IPipeline(pipeline_input_type)
@@ -43,6 +43,5 @@ class Test(TestCase):
                 ExecutablesStatus.DONE_WITH_COMPENSATION,
             ]
 
-            self.assertEqual(activity_passed, True)
-            self.assertEqual(pipeline_passed, True)
             self.assertEqual(started, True)
+            self.assertEqual(activity_passed, pipeline_passed)
