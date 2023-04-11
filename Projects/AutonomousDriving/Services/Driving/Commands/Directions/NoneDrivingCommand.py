@@ -1,4 +1,3 @@
-import time
 import logging
 from datetime import timedelta
 
@@ -17,7 +16,7 @@ class NoneDrivingCommand(IDrivingCommand):
         self.execution_time: timedelta = execution_time
 
     def start(self, **kwargs) -> bool:
-        print(f"  > direction {self.direction_type} ...", flush=True)
+        logging.info(f"  > direction {self.direction_type} ... ({TimeUtils.current_time()})")
         return self.__execution(method_name='start', **kwargs)
 
     def stop(self, **kwargs) -> bool:

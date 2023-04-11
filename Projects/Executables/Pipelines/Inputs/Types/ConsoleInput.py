@@ -57,5 +57,5 @@ class ConsoleInput(IPipelineInput):
             with open(file_path, 'r', encoding="utf-8") as fh:
                 return json.loads(fh.read())
         except Exception as e:
-            print(f"(e) Exception: {e}", flush=True)
+            logging.info(f"(e) Exception: {e}")
             return None

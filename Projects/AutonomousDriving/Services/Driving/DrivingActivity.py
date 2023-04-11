@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from threading import Event
 from typing import List, Dict
@@ -145,7 +146,7 @@ class DrivingActivity(IActivity):
                 # self.back_LEDs[1].stop()
             return True
         except Exception as e:
-            print(f"Exception in DrivingActivity._pre_stop_method() method: {e}", flush=True)
+            logging.info(f"Exception in DrivingActivity._pre_stop_method() method: {e}")
             return False
 
     @staticmethod

@@ -46,7 +46,7 @@ class IPipeline(IQueue[IActivity], ICompensating):
                 current_activity = self.next()
 
             except Exception as e:
-                print(f"(e) Exception: {e}", flush=True)
+                logging.info(f"(e) Exception: {e}")
 
                 self.status = ExecutablesStatus.FAILED
                 return False

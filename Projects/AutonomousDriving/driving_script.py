@@ -1,7 +1,12 @@
+import logging
+
 from Projects.Executables.Activities.IActivity import IActivity
 from Projects.Executables.Pipelines.IPipeline import IPipeline
 from Projects.Executables.Pipelines.Inputs.IPipelineInput import IPipelineInput
 from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
+
+
+logging.basicConfig(level=logging.INFO)
 
 
 if __name__ == "__main__":

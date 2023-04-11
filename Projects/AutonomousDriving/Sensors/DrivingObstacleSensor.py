@@ -1,10 +1,11 @@
-from datetime import datetime
+import logging
 
 import RPi.GPIO as GPIO
 
 from Projects.AutonomousDriving.Services.Driving.Commands.DirectionType import DirectionType
 from Projects.AutonomousDriving.Services.Driving.DrivingActivity import DrivingActivity
 from Projects.Executables.External.Sensors.Variants.ObstacleSensor import ObstacleSensor
+from Projects.Executables.Utils import TimeUtils
 
 
 class DrivingObstacleSensor(ObstacleSensor):
@@ -37,4 +38,4 @@ class DrivingObstacleSensor(ObstacleSensor):
             self.activity.get_obstacle_sensor_back_event().set()
 
         # set info that obstacle was found
-        print(f"\t(!) obstacle detected at {datetime.now().strftime('%H:%M:%S.%f')}", flush=True)
+        logging.info(f"\t(!) obstacle detected ({TimeUtils.current_time()})")

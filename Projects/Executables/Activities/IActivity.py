@@ -1,3 +1,4 @@
+import logging
 from abc import abstractmethod
 from collections import deque
 from datetime import timedelta, datetime
@@ -8,6 +9,7 @@ from Projects.Executables.Commands.ICommand import ICommand
 from Projects.Executables.Compensating.ICompensating import ICompensating
 from Projects.Executables.ExecutablesStatus import ExecutablesStatus
 from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
+from Projects.Executables.Utils import TimeUtils
 from Projects.Queues.IQueue import IQueue
 
 
@@ -38,7 +40,7 @@ class IActivity(IQueue[ICommand], ICompensating):
             # for compensation process
             self.__executed_commands.appendleft(current_command)
 
-            print(f"\n > command {current_command.activity_type}: START", flush=True)
+            logging.info(f"\n > command {current_command.activity_type}: START ({TimeUtils.current_time()})")
 
             current_command.execution_start = datetime.now()
             started: bool = current_command.start(activity=self)
@@ -52,11 +54,12 @@ class IActivity(IQueue[ICommand], ICompensating):
 
             if not started:
                 self.execution_end = datetime.now()
-                print(f" > command {current_command.activity_type} START => FAILED", flush=True)
+                logging.info(f" > command {current_command.activity_type} START => FAILED ({TimeUtils.current_time()})")
 
-                print(f" \t> compensating command: START", flush=True)
+                logging.info(f" \t> compensating command: START ({TimeUtils.current_time()})")
                 compensated: bool = current_command.compensate(activity=self)
-                print(f" \t> compensating command: END {'=> FAILED again' if not compensated else ''}", flush=True)
+                logging.info(f" \t> compensating command: END {'=> FAILED again' if not compensated else ''} "
+                             f"({TimeUtils.current_time()})")
 
                 self.status = ExecutablesStatus.DONE_WITH_COMPENSATION if compensated \
                     else ExecutablesStatus.COMPENSATION_FAILED
@@ -76,10 +79,10 @@ class IActivity(IQueue[ICommand], ICompensating):
 
             if not ended:
                 self.execution_end = datetime.now()
-                print(f" > command {current_command.activity_type} END => FAILED", flush=True)
+                logging.info(f" > command {current_command.activity_type} END => FAILED ({TimeUtils.current_time()})")
                 # todo do something if stop() fails
                 return False
-            print(f" > command {current_command.activity_type}: END", flush=True)
+            logging.info(f" > command {current_command.activity_type}: END ({TimeUtils.current_time()})")
 
             current_command = self.next()
 

@@ -5,6 +5,7 @@ from Projects.AutonomousDriving.Services.Driving.Commands.DirectionType import D
 from Projects.AutonomousDriving.Services.Driving.Commands.IDrivingCommand import IDrivingCommand
 from Projects.AutonomousDriving.Services.Driving.DrivingConfig import DrivingConfig
 from Projects.Executables.External.Motors.MotorConfig import MotorConfig
+from Projects.Executables.Utils import TimeUtils
 
 
 class ForwardDrivingCommand(IDrivingCommand):
@@ -15,7 +16,7 @@ class ForwardDrivingCommand(IDrivingCommand):
         self.execution_time: timedelta = execution_time
 
     def start(self, **kwargs) -> bool:
-        print(f"  > direction {self.direction_type} ...", flush=True)
+        logging.info(f"  > direction {self.direction_type} ... ({TimeUtils.current_time()})")
         return self.__execution(DirectionType.FORWARD, method_name='start', **kwargs)
 
     def stop(self, **kwargs) -> bool:

@@ -1,3 +1,4 @@
+import logging
 from unittest.mock import patch
 from unittest import TestCase
 
@@ -8,6 +9,7 @@ from Projects.Executables.Pipelines.Inputs.IPipelineInput import IPipelineInput
 from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
 
 test_case_1 = "test/driving_test_input_basic_obstacles.json"
+logging.basicConfig(level=logging.INFO)
 
 
 class Test(TestCase):

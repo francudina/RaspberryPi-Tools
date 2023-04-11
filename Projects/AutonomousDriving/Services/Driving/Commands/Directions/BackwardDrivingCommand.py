@@ -4,6 +4,7 @@ from datetime import timedelta
 from Projects.AutonomousDriving.Services.Driving.Commands.DirectionType import DirectionType
 from Projects.AutonomousDriving.Services.Driving.Commands.IDrivingCommand import IDrivingCommand
 from Projects.AutonomousDriving.Services.Driving.DrivingConfig import DrivingConfig
+from Projects.Executables.Utils import TimeUtils
 
 
 class BackwardDrivingCommand(IDrivingCommand):
@@ -14,7 +15,7 @@ class BackwardDrivingCommand(IDrivingCommand):
         self.execution_time: timedelta = execution_time
 
     def start(self, **kwargs) -> bool:
-        print(f"  > direction {self.direction_type} ...", flush=True)
+        logging.info(f"  > direction {self.direction_type} ... ({TimeUtils.current_time()})")
         return self.__execution(DirectionType.BACKWARD, method_name='start', **kwargs)
 
     def stop(self, **kwargs) -> bool:
