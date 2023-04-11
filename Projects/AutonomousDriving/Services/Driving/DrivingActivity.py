@@ -146,7 +146,7 @@ class DrivingActivity(IActivity):
                 # self.back_LEDs[1].stop()
             return True
         except Exception as e:
-            logging.info(f"Exception in DrivingActivity._pre_stop_method() method: {e}")
+            logging.error(f"Exception in DrivingActivity._pre_stop_method() method: {e}")
             return False
 
     @staticmethod
