@@ -1,5 +1,5 @@
 # Raspberry Pi Tools
-[![Tests](https://github.com/francudina/Raspberry-Pi-Tools/actions/workflows/push_pullreq.yaml/badge.svg)](https://github.com/francudina/Raspberry-Pi-Tools/blob/main/.github/workflows/push_pullreq.yaml)
+[![Tests](https://github.com/francudina/Raspberry-Pi-Tools/actions/workflows/tests.yaml/badge.svg)](https://github.com/francudina/Raspberry-Pi-Tools/blob/main/.github/workflows/tests.yaml)
 
 
 ### About repository
