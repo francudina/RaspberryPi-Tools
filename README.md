@@ -1,5 +1,5 @@
 # Raspberry Pi Tools
-[![Tests](https://github.com/francudina/Raspberry-Pi-Tools/actions/workflows/tests.yaml/badge.svg)](https://github.com/francudina/Raspberry-Pi-Tools/blob/main/.github/workflows/tests.yaml)
+[![Tests](https://github.com/francudina/Raspberry-Pi-Tools/actions/workflows/tests.yaml/badge.svg)](https://github.com/francudina/Raspberry-Pi-Tools/actions/workflows/tests.yaml)
 
 
 ### About repository
