@@ -1,5 +1,6 @@
 # Raspberry Pi Tools
-![Build](https://github.com/francudina/Raspberry-Pi-Tools/actions/workflows/push_pullreq.yaml/badge.svg)
+[![Tests](https://github.com/francudina/Raspberry-Pi-Tools/actions/workflows/push_pullreq.yaml/badge.svg)](https://github.com/francudina/Raspberry-Pi-Tools/blob/main/.github/workflows/push_pullreq.yaml)
+
 
 ### About repository
 Repository used as a playground for Raspberry Pi ideas
