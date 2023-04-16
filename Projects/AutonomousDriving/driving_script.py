@@ -1,25 +1,21 @@
 import logging
 
+from Projects.AutonomousDriving.Config.Arguments import Arguments, get_parser
 from Projects.Executables.Activities.IActivity import IActivity
 from Projects.Executables.Pipelines.IPipeline import IPipeline
 from Projects.Executables.Pipelines.Inputs.IPipelineInput import IPipelineInput
-from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
 from RPi import GPIO
-
-logging.basicConfig(level=logging.INFO)
 
 
 if __name__ == "__main__":
 
-    # pipeline config
-    # - type
-    pipeline_input_type: PipelineInputType = PipelineInputType.CONSOLE
-    # - input
-    pipeline_input: IPipelineInput = IPipelineInput.get_pipeline_input(pipeline_input_type)
-    # - pipeline
-    pipeline = IPipeline(pipeline_input_type)
+    arguments: Arguments = get_parser()
 
-    # GPIO.setwarnings(False)
+    GPIO.setwarnings(arguments.gpio_warnings_enabled)
+    logging.basicConfig(level=arguments.logging_level)
+
+    pipeline_input: IPipelineInput = IPipelineInput.get_pipeline_input(arguments.pipeline_input)
+    pipeline = IPipeline(arguments.pipeline_input)
 
     try:
         # iteration start
