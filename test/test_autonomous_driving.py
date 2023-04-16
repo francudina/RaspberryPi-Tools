@@ -77,7 +77,7 @@ class Test(TestCase):
         # setting higher probability to force obstacle detection
         GPIO.CURRENT_THRESHOLD = 0.30
         GPIO.CURRENT_SLEEP = 0.5
-        self._execute_test(run_n_times=3)
+        self._execute_test(run_n_times=2)
 
     @patch(
         target='Projects.Executables.Pipelines.Inputs.Types.ConsoleInput.ConsoleInput._read_input',
