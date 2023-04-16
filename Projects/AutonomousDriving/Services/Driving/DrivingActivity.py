@@ -118,14 +118,20 @@ class DrivingActivity(IActivity):
     def get_obstacle_sensor_back_event(self) -> Event:
         return self.events[1]
 
-    def _event_reset(self, command: IDrivingCommand) -> None:
-        if command.direction_type == DirectionType.FORWARD:
+    def _event_reset(self, command: IDrivingCommand, is_compensation: bool) -> None:
+        directions: List[DirectionType] = []
+        if is_compensation:
+            directions.append(command.get_compensation_direction())
+        else:
+            directions.append(command.direction_type)
+
+        if DirectionType.FORWARD in directions:
             # if action was forward then reset front sensor event
             self.get_obstacle_sensor_front_event().clear()
-        elif command.direction_type == DirectionType.BACKWARD:
+        elif DirectionType.BACKWARD in directions:
             # if action was backward then reset back sensor event
             self.get_obstacle_sensor_back_event().clear()
-        elif command.direction_type == DirectionType.NONE:
+        elif DirectionType.NONE in directions:
             # if there was no action then reset front & back sensor event
             self.get_obstacle_sensor_front_event().clear()
             self.get_obstacle_sensor_back_event().clear()

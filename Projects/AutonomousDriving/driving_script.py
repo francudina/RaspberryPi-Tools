@@ -30,5 +30,5 @@ if __name__ == "__main__":
             continue
 
         started: bool = pipeline.start()
-        if not started:
-            compensated: bool = pipeline.compensate()
+        # if not started:
+        #     compensated: bool = pipeline.compensate()

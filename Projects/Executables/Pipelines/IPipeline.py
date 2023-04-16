@@ -32,12 +32,15 @@ class IPipeline(IQueue[IActivity], ICompensating):
                 started = current_activity.start()
                 if not started:
                     passed: bool = self.compensate()
-
                 self.status = current_activity.status
 
                 ended = current_activity.stop()
                 self.status = current_activity.status
 
+                if self.status == ExecutablesStatus.STOP_FAILED:
+                    return False
+                if self.status == ExecutablesStatus.COMPENSATION_FAILED:
+                    return False
                 if not ended:
                     return False
 

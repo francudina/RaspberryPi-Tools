@@ -25,6 +25,9 @@ class NoneDrivingCommand(IDrivingCommand):
     def compensate(self, **kwargs) -> bool:
         return True
 
+    def get_compensation_direction(self) -> DirectionType:
+        return DirectionType.NONE
+
 # private
     def __execution(self, method_name: str, **kwargs) -> bool:
         self.__validate(**kwargs)

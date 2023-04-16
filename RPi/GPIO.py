@@ -27,7 +27,15 @@ FALLING = 0
 PUD_UP = 1
 PUD_DOWN = 0
 
+# for storing threads and joining
 event_threads: {} = {}
+
+# default values for "dummy_obstacle_sensor_detector" method
+DEFAULT_THRESHOLD: float = 0.30
+DEFAULT_SLEEP: float = 0.30
+# current values for "dummy_obstacle_sensor_detector" method - used for overrides
+CURRENT_THRESHOLD: float = DEFAULT_THRESHOLD
+CURRENT_SLEEP: float = DEFAULT_SLEEP
 
 
 class PwdTmp:
@@ -74,8 +82,8 @@ Mocking sensor readings with uniform random number generator.
 If value is less then threshold then callback method is triggered.
 """
 def dummy_obstacle_sensor_detector(channel: int, callback, stop_event: Event):
-    threshold: float = 0.15
-    sleep_between: float = 1.5
+    threshold: float = CURRENT_THRESHOLD
+    sleep_between: float = CURRENT_SLEEP
     logging.info(f"# mocked obstacle sensor ({channel}): start ({TimeUtils.current_time()})")
     while not stop_event.is_set():
         if random.uniform(0, 1) < threshold:

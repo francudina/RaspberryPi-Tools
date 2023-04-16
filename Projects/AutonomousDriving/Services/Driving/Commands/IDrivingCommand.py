@@ -12,3 +12,7 @@ class IDrivingCommand(ICommand, ABC):
         # init vars
         self.direction_type: DirectionType = direction_type
         self.wheel_angle: float = wheel_angle
+
+    @abstractmethod
+    def get_compensation_direction(self) -> DirectionType:
+        pass

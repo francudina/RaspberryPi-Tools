@@ -22,9 +22,12 @@ class BackwardDrivingCommand(IDrivingCommand):
         return True
 
     def compensate(self, **kwargs) -> bool:
-        return self.__execution(DirectionType.FORWARD, method_name='compensate', **kwargs)
+        return self.__execution(self.get_compensation_direction(), method_name='compensate', **kwargs)
 
-    # private
+    def get_compensation_direction(self) -> DirectionType:
+        return DirectionType.FORWARD
+
+# private
     def __execution(self, direction_type: DirectionType, method_name: str, **kwargs) -> bool:
         self.__validate(**kwargs)
 
