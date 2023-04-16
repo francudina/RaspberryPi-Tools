@@ -8,7 +8,7 @@ from Projects.Executables.Pipelines.Inputs.InputConfig import InputConfig
 from Projects.Executables.Pipelines.Inputs.Types.AlgorithmInput import AlgorithmInput
 
 
-class AlgorithmDrivingInputActivity(AlgorithmInput, DrivingActivity):
+class AlgorithmDrivingInputActivity(DrivingActivity, AlgorithmInput):
     """
     Algorithm serves as input for itself.
     """

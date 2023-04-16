@@ -11,9 +11,6 @@ Repository used as a playground for Raspberry Pi ideas
     ```
     # executing script, see below for list of arguments:
     python3 -m Projects.AutonomousDriving.driving_script [<arguments>]
-  
-    # enter path to configuration file, e.g.:
-    Projects/AutonomousDriving/driving_input.json
     ```
   
   - see `[<arguments>]` options with `-h` or `--help` param on `driving_script`
