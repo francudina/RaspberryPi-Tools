@@ -1,7 +1,11 @@
+import argparse
 import logging
+from types import SimpleNamespace
 from unittest.mock import patch
 from unittest import TestCase
 
+from Projects.AutonomousDriving.Config import Arguments
+from Projects.AutonomousDriving.Config.Arguments import Arguments
 from Projects.Executables.Activities.IActivity import IActivity
 from Projects.Executables.ExecutablesStatus import ExecutablesStatus
 from Projects.Executables.Pipelines.IPipeline import IPipeline
@@ -9,7 +13,11 @@ from Projects.Executables.Pipelines.Inputs.IPipelineInput import IPipelineInput
 from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
 from RPi import GPIO
 
-test_case_1 = "test/driving_test_input_basic_obstacles.json"
+# inputs & inputs
+# device_config = "test/devices.json"
+# commands = "test/commands.json"
+device_config = "devices.json"
+commands = "commands.json"
 logging.basicConfig(level=logging.INFO)
 
 
@@ -17,13 +25,23 @@ class Test(TestCase):
 
     def _execute_test(self, run_n_times: int):
 
-        logging.info(f"\n*** TEST EXECUTION ***")
-
-        pipeline_input_type: PipelineInputType = PipelineInputType.CONSOLE
-        pipeline_input: IPipelineInput = IPipelineInput.get_pipeline_input(pipeline_input_type)
-        pipeline = IPipeline(pipeline_input_type)
-
         for _ in range(run_n_times):
+            logging.info(f"\n\n*** TEST EXECUTION ***")
+
+            data: {} = {
+                'pipeline_input': PipelineInputType.CONSOLE.name,
+                'devices_config_file': device_config,
+                'commands': commands,
+                'gpio_warnings_enabled': False,
+                'logging_level': 'info'
+            }
+            args: SimpleNamespace = SimpleNamespace(**data)
+            arguments: Arguments = Arguments(args)
+
+            pipeline_input_type: PipelineInputType = PipelineInputType.CONSOLE
+            pipeline_input: IPipelineInput = IPipelineInput.get_pipeline_input(arguments)
+            pipeline = IPipeline(pipeline_input_type)
+
             activity: IActivity = pipeline_input.next_input()
             self.assertNotEqual(activity, None)
 
@@ -59,31 +77,19 @@ class Test(TestCase):
             self.assertNotEqual(pipeline_status, ExecutablesStatus.FAILED)
             self.assertEqual(activity_passed, pipeline_passed)
 
-    @patch(
-        target='Projects.Executables.Pipelines.Inputs.Types.ConsoleInput.ConsoleInput._read_input',
-        return_value=test_case_1
-    )
-    def test_driving_happy_path(self, input):
+    def test_driving_happy_path(self):
         # setting lower probability to avoid obstacle detection
         GPIO.CURRENT_THRESHOLD = 0.12
         GPIO.CURRENT_SLEEP = 1
         self._execute_test(run_n_times=2)
 
-    @patch(
-        target='Projects.Executables.Pipelines.Inputs.Types.ConsoleInput.ConsoleInput._read_input',
-        return_value=test_case_1
-    )
-    def test_driving_unhappy_path_1(self, input):
+    def test_driving_unhappy_path_1(self):
         # setting higher probability to force obstacle detection
         GPIO.CURRENT_THRESHOLD = 0.30
         GPIO.CURRENT_SLEEP = 0.5
         self._execute_test(run_n_times=2)
 
-    @patch(
-        target='Projects.Executables.Pipelines.Inputs.Types.ConsoleInput.ConsoleInput._read_input',
-        return_value=test_case_1
-    )
-    def test_driving_unhappy_path_2(self, input):
+    def test_driving_unhappy_path_2(self):
         # setting even higher probability to force obstacle detection
         GPIO.CURRENT_THRESHOLD = 0.8
         GPIO.CURRENT_SLEEP = 0.1

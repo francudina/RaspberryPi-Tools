@@ -18,31 +18,30 @@ from Projects.Executables.External.Motors.DriveMotor import DriveMotor
 from Projects.Executables.External.Motors.MotorConfig import MotorConfig
 from Projects.Executables.External.Motors.ServoSG90 import ServoSG90
 from Projects.Executables.Pipelines.Inputs.InputConfig import InputConfig
-from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
 
 
 class DrivingActivity(IActivity):
 
-    def __init__(self, pipeline_input_type: PipelineInputType, **driving_config):
-        input_commands: List[IDrivingCommand] = DrivingActivity.get_commands(**driving_config)
-        super(DrivingActivity, self).__init__(pipeline_input_type, input_commands, total_events=2)
+    def __init__(self, device_config: {}, commands: List[Dict]):
+        input_commands: List[IDrivingCommand] = DrivingActivity.get_commands(commands)
+        super(DrivingActivity, self).__init__(input_commands, total_events=2)
         # init vars
-        self.use_sensors: bool = driving_config[InputConfig.DRIVING_USE_SENSORS_FIELD.value]
-        self.using_front_sensor: bool = driving_config[DrivingConfig.OBSTACLE_FRONT_SENSOR.value][DrivingConfig.OBSTACLE_SENSOR_USING_SENSOR.value]
-        self.using_back_sensor: bool = driving_config[DrivingConfig.OBSTACLE_BACK_SENSOR.value][DrivingConfig.OBSTACLE_SENSOR_USING_SENSOR.value]
-        self.use_LEDs: bool = driving_config[InputConfig.DRIVING_USE_LEDs_FIELD.value]
+        self.use_sensors: bool = device_config[InputConfig.DRIVING_USE_SENSORS_FIELD.value]
+        self.using_front_sensor: bool = device_config[DrivingConfig.OBSTACLE_FRONT_SENSOR.value][DrivingConfig.OBSTACLE_SENSOR_USING_SENSOR.value]
+        self.using_back_sensor: bool = device_config[DrivingConfig.OBSTACLE_BACK_SENSOR.value][DrivingConfig.OBSTACLE_SENSOR_USING_SENSOR.value]
+        self.use_LEDs: bool = device_config[InputConfig.DRIVING_USE_LEDs_FIELD.value]
         # - motors
         self.front_wheels_motor: ServoSG90 = ServoSG90(
-            pin_number=driving_config[DrivingConfig.SERVO_CONFIG.value][DrivingConfig.SERVO_PIN_NUMBER.value],
-            board_mode=DrivingUtils.get_board_mode(driving_config[DrivingConfig.SERVO_CONFIG.value][DrivingConfig.SERVO_BOARD_MODE.value])
+            pin_number=device_config[DrivingConfig.SERVO_CONFIG.value][DrivingConfig.SERVO_PIN_NUMBER.value],
+            board_mode=DrivingUtils.get_board_mode(device_config[DrivingConfig.SERVO_CONFIG.value][DrivingConfig.SERVO_BOARD_MODE.value])
         )
         self.front_wheels_motor.start()
         self.back_wheels_motor: DriveMotor = DriveMotor(
-            pin_number_in1=driving_config[DrivingConfig.MOTOR_CONFIG.value][DrivingConfig.MOTOR_PIN_NUMBER_IN1.value],
-            pin_number_in2=driving_config[DrivingConfig.MOTOR_CONFIG.value][DrivingConfig.MOTOR_PIN_NUMBER_IN2.value],
-            pin_number_pwm=driving_config[DrivingConfig.MOTOR_CONFIG.value][DrivingConfig.MOTOR_PIN_NUMBER_PWM.value],
-            pin_number_sby=driving_config[DrivingConfig.MOTOR_CONFIG.value][DrivingConfig.MOTOR_PIN_NUMBER_SBY.value],
-            board_mode=DrivingUtils.get_board_mode(driving_config[DrivingConfig.MOTOR_CONFIG.value][DrivingConfig.MOTOR_BOARD_MODE.value]),
+            pin_number_in1=device_config[DrivingConfig.MOTOR_CONFIG.value][DrivingConfig.MOTOR_PIN_NUMBER_IN1.value],
+            pin_number_in2=device_config[DrivingConfig.MOTOR_CONFIG.value][DrivingConfig.MOTOR_PIN_NUMBER_IN2.value],
+            pin_number_pwm=device_config[DrivingConfig.MOTOR_CONFIG.value][DrivingConfig.MOTOR_PIN_NUMBER_PWM.value],
+            pin_number_sby=device_config[DrivingConfig.MOTOR_CONFIG.value][DrivingConfig.MOTOR_PIN_NUMBER_SBY.value],
+            board_mode=DrivingUtils.get_board_mode(device_config[DrivingConfig.MOTOR_CONFIG.value][DrivingConfig.MOTOR_BOARD_MODE.value]),
         )
         self.back_wheels_motor.start()
         # - sensors
@@ -50,7 +49,7 @@ class DrivingActivity(IActivity):
             from Projects.AutonomousDriving.Sensors.DrivingObstacleSensor import DrivingObstacleSensor
             # - sensors.front
             if self.using_front_sensor:
-                front_sensor: {} = driving_config[DrivingConfig.OBSTACLE_FRONT_SENSOR.value]
+                front_sensor: {} = device_config[DrivingConfig.OBSTACLE_FRONT_SENSOR.value]
                 self.front_obstacle_sensor: DrivingObstacleSensor = DrivingObstacleSensor(
                     activity=self,
                     for_direction=DirectionType.FORWARD,
@@ -64,7 +63,7 @@ class DrivingActivity(IActivity):
                 self.front_obstacle_sensor: DrivingObstacleSensor = None
             # - sensors.back
             if self.using_back_sensor:
-                back_sensor: {} = driving_config[DrivingConfig.OBSTACLE_BACK_SENSOR.value]
+                back_sensor: {} = device_config[DrivingConfig.OBSTACLE_BACK_SENSOR.value]
                 self.back_obstacle_sensor: DrivingObstacleSensor = DrivingObstacleSensor(
                     activity=self,
                     for_direction=DirectionType.BACKWARD,
@@ -84,12 +83,12 @@ class DrivingActivity(IActivity):
         if self.use_LEDs:
             self.front_LEDs: List[ExternalLED] = [
                 ExternalLED(
-                    pin_number=driving_config[DrivingConfig.LEDs_FRONT.value][DrivingConfig.LEDs_FRONT_LEFT.value][DrivingConfig.LED_PIN_NUMBER.value],
-                    board_mode=DrivingUtils.get_board_mode(driving_config[DrivingConfig.LEDs_FRONT.value][DrivingConfig.LEDs_FRONT_LEFT.value][DrivingConfig.LED_BOARD_MODE.value])
+                    pin_number=device_config[DrivingConfig.LEDs_FRONT.value][DrivingConfig.LEDs_FRONT_LEFT.value][DrivingConfig.LED_PIN_NUMBER.value],
+                    board_mode=DrivingUtils.get_board_mode(device_config[DrivingConfig.LEDs_FRONT.value][DrivingConfig.LEDs_FRONT_LEFT.value][DrivingConfig.LED_BOARD_MODE.value])
                 ),
                 ExternalLED(
-                    pin_number=driving_config[DrivingConfig.LEDs_FRONT.value][DrivingConfig.LEDs_FRONT_RIGHT.value][DrivingConfig.LED_PIN_NUMBER.value],
-                    board_mode=DrivingUtils.get_board_mode(driving_config[DrivingConfig.LEDs_FRONT.value][DrivingConfig.LEDs_FRONT_RIGHT.value][DrivingConfig.LED_BOARD_MODE.value])
+                    pin_number=device_config[DrivingConfig.LEDs_FRONT.value][DrivingConfig.LEDs_FRONT_RIGHT.value][DrivingConfig.LED_PIN_NUMBER.value],
+                    board_mode=DrivingUtils.get_board_mode(device_config[DrivingConfig.LEDs_FRONT.value][DrivingConfig.LEDs_FRONT_RIGHT.value][DrivingConfig.LED_BOARD_MODE.value])
                 )
             ]
             self.front_LEDs[0].start()
@@ -98,12 +97,12 @@ class DrivingActivity(IActivity):
             self.back_LEDs: List[ExternalLED] = []
             # self.back_LEDs: List[ExternalLED] = [
             #     ExternalLED(
-            #         pin_number=driving_config[DrivingConfig.LEDs_BACK.value][DrivingConfig.LEDs_BACK_LEFT.value][DrivingConfig.LED_PIN_NUMBER.value],
-            #         board_mode=DrivingUtils.get_board_mode(driving_config[DrivingConfig.LEDs_BACK.value][DrivingConfig.LEDs_BACK_LEFT.value][DrivingConfig.LED_BOARD_MODE.value])
+            #         pin_number=device_config[DrivingConfig.LEDs_BACK.value][DrivingConfig.LEDs_BACK_LEFT.value][DrivingConfig.LED_PIN_NUMBER.value],
+            #         board_mode=DrivingUtils.get_board_mode(device_config[DrivingConfig.LEDs_BACK.value][DrivingConfig.LEDs_BACK_LEFT.value][DrivingConfig.LED_BOARD_MODE.value])
             #     ),
             #     ExternalLED(
-            #         pin_number=driving_config[DrivingConfig.LEDs_BACK.value][DrivingConfig.LEDs_BACK_RIGHT.value][DrivingConfig.LED_PIN_NUMBER.value],
-            #         board_mode=DrivingUtils.get_board_mode(driving_config[DrivingConfig.LEDs_BACK.value][DrivingConfig.LEDs_BACK_RIGHT.value][DrivingConfig.LED_BOARD_MODE.value])
+            #         pin_number=device_config[DrivingConfig.LEDs_BACK.value][DrivingConfig.LEDs_BACK_RIGHT.value][DrivingConfig.LED_PIN_NUMBER.value],
+            #         board_mode=DrivingUtils.get_board_mode(device_config[DrivingConfig.LEDs_BACK.value][DrivingConfig.LEDs_BACK_RIGHT.value][DrivingConfig.LED_BOARD_MODE.value])
             #    )
             # ]
             # self.back_LEDs[0].start()
@@ -156,13 +155,12 @@ class DrivingActivity(IActivity):
             return False
 
     @staticmethod
-    def get_commands(**driving_config) -> List[IDrivingCommand]:
+    def get_commands(received_commands: List[Dict]) -> List[IDrivingCommand]:
         input_commands: List[IDrivingCommand] = list()
 
-        if InputConfig.DRIVING_COMMANDS.value not in driving_config.keys():
+        if not received_commands or len(received_commands) == 0:
             return input_commands
 
-        received_commands: List[Dict] = driving_config[InputConfig.DRIVING_COMMANDS.value]
         for command in received_commands:
 
             t: datetime = datetime.strptime(

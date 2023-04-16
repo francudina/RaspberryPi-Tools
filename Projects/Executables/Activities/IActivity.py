@@ -15,11 +15,9 @@ from Projects.Queues.IQueue import IQueue
 
 class IActivity(IQueue[ICommand], ICompensating):
 
-    def __init__(self, pipeline_input_type: PipelineInputType, input_commands: List[ICommand], total_events: int,
+    def __init__(self, input_commands: List[ICommand], total_events: int,
                  queue_size: int = -1, blocking_queue: bool = True, blocking_timeout: timedelta = None):
         super(IActivity, self).__init__(queue_size, blocking_queue, blocking_timeout)
-        # init vars
-        self.activity_input_type: PipelineInputType = pipeline_input_type
         # - insert commands
         self.__add_commands(input_commands)
         # - executed

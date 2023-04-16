@@ -14,7 +14,7 @@ if __name__ == "__main__":
     GPIO.setwarnings(arguments.gpio_warnings_enabled)
     logging.basicConfig(level=arguments.logging_level)
 
-    pipeline_input: IPipelineInput = IPipelineInput.get_pipeline_input(arguments.pipeline_input)
+    pipeline_input: IPipelineInput = IPipelineInput.get_pipeline_input(arguments)
     pipeline = IPipeline(arguments.pipeline_input)
 
     try:
