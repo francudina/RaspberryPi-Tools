@@ -31,8 +31,8 @@ PUD_DOWN = 0
 event_threads: {} = {}
 
 # default values for "dummy_obstacle_sensor_detector" method
-DEFAULT_THRESHOLD: float = 0.30
-DEFAULT_SLEEP: float = 0.30
+DEFAULT_THRESHOLD: float = 0.15
+DEFAULT_SLEEP: float = 1.5
 # current values for "dummy_obstacle_sensor_detector" method - used for overrides
 CURRENT_THRESHOLD: float = DEFAULT_THRESHOLD
 CURRENT_SLEEP: float = DEFAULT_SLEEP
@@ -59,7 +59,7 @@ def setup(a: int, b=None, pull_up_down=None):
 
 def input(a: int, b=None):
     # logging.info("input:", a, b)
-    return LOW
+    return HIGH
 
 
 def output(a: int, b=None):

@@ -4,7 +4,7 @@ from Projects.Executables.Activities.IActivity import IActivity
 from Projects.Executables.Pipelines.IPipeline import IPipeline
 from Projects.Executables.Pipelines.Inputs.IPipelineInput import IPipelineInput
 from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
-
+from RPi import GPIO
 
 logging.basicConfig(level=logging.INFO)
 
@@ -19,16 +19,21 @@ if __name__ == "__main__":
     # - pipeline
     pipeline = IPipeline(pipeline_input_type)
 
-    # iteration start
-    while True:
-        activity: IActivity = pipeline_input.next_input()
-        if activity is None:
-            break
+    # GPIO.setwarnings(False)
 
-        added: bool = pipeline.add(activity)
-        if not added:
-            continue
+    try:
+        # iteration start
+        while True:
+            activity: IActivity = pipeline_input.next_input()
+            if activity is None:
+                break
 
-        started: bool = pipeline.start()
-        # if not started:
-        #     compensated: bool = pipeline.compensate()
+            added: bool = pipeline.add(activity)
+            if not added:
+                continue
+
+            started: bool = pipeline.start()
+            # if not started:
+            #     compensated: bool = pipeline.compensate()
+    except KeyboardInterrupt as e:
+        GPIO.cleanup()

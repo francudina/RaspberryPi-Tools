@@ -51,10 +51,9 @@ class ISensor(IExternalService):
     def __configure(self) -> bool:
         try:
             GPIO.setmode(self.board_mode)
-            GPIO.setwarnings(False)
 
             if self.with_callback:
-                GPIO.setup(self.pin_number, self.pin_direction, self.pull_up_down)
+                GPIO.setup(self.pin_number, self.pin_direction, pull_up_down=self.pull_up_down)
                 GPIO.add_event_detect(
                     self.pin_number,
                     self.callback_edge,

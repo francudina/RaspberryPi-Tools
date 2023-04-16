@@ -55,7 +55,6 @@ class DriveMotor(IExternalService):
     def __configure(self) -> bool:
         try:
             GPIO.setmode(self.board_mode)
-            GPIO.setwarnings(False)
 
             GPIO.setup(self.pin_number_in1, self.pin_direction)
             GPIO.setup(self.pin_number_in2, self.pin_direction)

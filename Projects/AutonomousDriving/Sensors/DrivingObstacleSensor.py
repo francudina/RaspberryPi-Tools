@@ -27,8 +27,10 @@ class DrivingObstacleSensor(ObstacleSensor):
         # check channel state
         state = GPIO.input(channel)
 
+        logging.info(f"\t(?) something detected: {state}")
+
         # if change was to the HIGH then skip!
-        if state == GPIO.HIGH:
+        if state == GPIO.LOW:
             return
 
         # check direction of the sensor to set the value!

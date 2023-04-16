@@ -7,6 +7,7 @@ import RPi.GPIO as GPIO
 
 def event_detected(channel):
     state = GPIO.input(channel)
+    print(f"something detected: {state}")
     if state == GPIO.LOW:
         print(f"\t+ event detected on channel '{channel}' at {datetime.utcnow().strftime('%H:%M:%S.%f')}")
 

@@ -40,7 +40,7 @@ class IActivity(IQueue[ICommand], ICompensating):
             # for compensation process
             self.__executed_commands.appendleft(current_command)
 
-            logging.info(f"\n > command {current_command.activity_type}: START ({TimeUtils.current_time()})")
+            logging.info(f" > command {current_command.activity_type}: START ({TimeUtils.current_time()})")
 
             current_command.execution_start = datetime.now()
             started: bool = current_command.start(activity=self)

@@ -46,7 +46,6 @@ class ExternalLED(IExternalService):
     def __configure(self) -> bool:
         try:
             GPIO.setmode(self.board_mode)
-            GPIO.setwarnings(False)
 
             GPIO.setup(self.pin_number, self.pin_direction)
             GPIO.output(self.pin_number, GPIO.HIGH)
