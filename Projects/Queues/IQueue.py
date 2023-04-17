@@ -1,6 +1,6 @@
 import logging
 from queue import Queue
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 
 # python generics:
 #   https://docs.python.org/3/library/typing.html#user-defined-generic-types
@@ -30,3 +30,6 @@ class IQueue(Generic[PayloadType]):
             return self.__queue.get(False)
         except:
             return None
+
+    def queue_size(self) -> int:
+        return self.__queue.qsize()

@@ -18,3 +18,7 @@ class ExecutablesStatus(Enum):
     STOP_FAILED = 9
     FINISHED = 10
     FAILED = 11
+
+    # for algorithms
+    PAUSED = 12
+    STOPPED = 13

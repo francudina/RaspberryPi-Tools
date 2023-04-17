@@ -18,13 +18,14 @@ from Projects.Executables.External.Motors.DriveMotor import DriveMotor
 from Projects.Executables.External.Motors.MotorConfig import MotorConfig
 from Projects.Executables.External.Motors.ServoSG90 import ServoSG90
 from Projects.Executables.Pipelines.Inputs.InputConfig import InputConfig
+from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
 
 
 class DrivingActivity(IActivity):
 
-    def __init__(self, device_config: {}, commands: List[Dict]):
+    def __init__(self, pipeline_input_type: PipelineInputType, device_config: {}, commands: List[Dict]):
         input_commands: List[IDrivingCommand] = DrivingActivity.get_commands(commands)
-        super(DrivingActivity, self).__init__(input_commands, total_events=2)
+        super(DrivingActivity, self).__init__(pipeline_input_type, input_commands, total_events=2)
         # init vars
         self.use_sensors: bool = device_config[InputConfig.DRIVING_USE_SENSORS_FIELD.value]
         self.using_front_sensor: bool = device_config[DrivingConfig.OBSTACLE_FRONT_SENSOR.value][DrivingConfig.OBSTACLE_SENSOR_USING_SENSOR.value]
@@ -117,7 +118,7 @@ class DrivingActivity(IActivity):
     def get_obstacle_sensor_back_event(self) -> Event:
         return self.events[1]
 
-    def _event_reset(self, command: IDrivingCommand, is_compensation: bool) -> None:
+    def event_reset(self, command: IDrivingCommand, is_compensation: bool) -> None:
         directions: List[DirectionType] = []
         if is_compensation:
             directions.append(command.get_compensation_direction())
@@ -163,43 +164,60 @@ class DrivingActivity(IActivity):
 
         for command in received_commands:
 
-            t: datetime = datetime.strptime(
-                command[InputConfig.DRIVING_EXECUTION_TIME.value],
-                InputConfig.DRIVING_EXECUTION_TIME_FORMAT.value
+            execution_time: timedelta = DrivingActivity.get_execution_time(
+                command[InputConfig.DRIVING_EXECUTION_TIME.value]
             )
-            execution_time: timedelta = timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
 
-            direction_type: str = command[InputConfig.DRIVING_DIRECTION_TYPE.value]
+            direction_type: DirectionType = DirectionType[str.upper(command[InputConfig.DRIVING_DIRECTION_TYPE.value])]
+            driving_turn: DrivingTurn = DrivingTurn[str.upper(command[InputConfig.DRIVING_WHEEL_TURN.value])]
 
-            if direction_type == DirectionType.FORWARD.value:
-                wheel_angle: float = DrivingActivity.driving_turn_angle(command[InputConfig.DRIVING_WHEEL_TURN.value])
-                input_commands.append(
-                    ForwardDrivingCommand(
-                        wheel_angle=wheel_angle,
-                        execution_time=execution_time
-                    )
-                )
-            elif direction_type == DirectionType.BACKWARD.value:
-                wheel_angle: float = DrivingActivity.driving_turn_angle(command[InputConfig.DRIVING_WHEEL_TURN.value])
-                input_commands.append(
-                    BackwardDrivingCommand(
-                        wheel_angle=wheel_angle,
-                        execution_time=execution_time
-                    )
-                )
-            elif direction_type == DirectionType.NONE.value:
-                input_commands.append(
-                    NoneDrivingCommand(
-                        execution_time=execution_time
-                    )
-                )
-            else:
+            got_command: IDrivingCommand = DrivingActivity.get_command_from_input(
+                direction_type=direction_type,
+                driving_turn=driving_turn,
+                execution_time=execution_time
+            )
+            if not got_command:
                 continue
+
+            input_commands.append(got_command)
+
         return input_commands
 
-    # private
     @staticmethod
-    def driving_turn_angle(driving_turn: str) -> float:
+    def get_command_from_input(
+            direction_type: DirectionType,
+            driving_turn: DrivingTurn,
+            execution_time: timedelta
+    ) -> IDrivingCommand:
+
+        wheel_angle: float = DrivingActivity.driving_turn_angle(driving_turn)
+        if direction_type == DirectionType.FORWARD.value:
+            return ForwardDrivingCommand(
+                    wheel_angle=wheel_angle,
+                    execution_time=execution_time
+                )
+        elif direction_type == DirectionType.BACKWARD.value:
+            return BackwardDrivingCommand(
+                    wheel_angle=wheel_angle,
+                    execution_time=execution_time
+                )
+        elif direction_type == DirectionType.NONE.value:
+            return NoneDrivingCommand(
+                    execution_time=execution_time
+                )
+        else:
+            return None
+
+    @staticmethod
+    def get_execution_time(execution_time_in_format: str) -> timedelta:
+        t: datetime = datetime.strptime(
+            execution_time_in_format,
+            InputConfig.DRIVING_EXECUTION_TIME_FORMAT.value
+        )
+        return timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
+
+    @staticmethod
+    def driving_turn_angle(driving_turn: DrivingTurn) -> float:
         if driving_turn == DrivingTurn.NONE.value:
             return MotorConfig.SERVO_STARTING_POINT.value
         elif driving_turn == DrivingTurn.LEFT.value:
@@ -208,3 +226,14 @@ class DrivingActivity(IActivity):
             return MotorConfig.SERVO_RIGHT_TURN_POINT.value
         else:
             return MotorConfig.SERVO_STARTING_POINT.value
+
+    @staticmethod
+    def driving_turn_by_angle(wheel_angle: float) -> DrivingTurn:
+        if wheel_angle == MotorConfig.SERVO_STARTING_POINT.value:
+            return DrivingTurn.NONE
+        elif wheel_angle == MotorConfig.SERVO_LEFT_TURN_POINT.value:
+            return DrivingTurn.LEFT
+        elif wheel_angle == MotorConfig.SERVO_RIGHT_TURN_POINT.value:
+            return DrivingTurn.RIGHT
+        else:
+            return DrivingTurn.NONE

@@ -32,7 +32,11 @@ class ConsoleInput(IPipelineInput):
             if self.file_data is None:
                 continue
 
-            activity = self._get_activity(device_config=self.device_config, **self.file_data)
+            activity = self._get_activity(
+                pipeline_input_type=self.arguments.pipeline_input,
+                device_config=self.device_config,
+                **self.file_data
+            )
             # reset loaded data after activity creation!
             self.file_data = {}
 

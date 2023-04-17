@@ -26,9 +26,9 @@ class IPipelineInput(ABC):
     @staticmethod
     def get_pipeline_input(arguments: Arguments):
         from Projects.Executables.Pipelines.Inputs.Types.WebInput import WebInput
-        from Projects.AutonomousDriving.Services.Algorithm.AlgorithmDrivingInputActivity import \
-            AlgorithmDrivingInputActivity
         from Projects.Executables.Pipelines.Inputs.Types.ConsoleInput import ConsoleInput
+        from Projects.AutonomousDriving.Services.Driving.AlgorithmDrivingInputActivity import \
+            AlgorithmDrivingInputActivity
 
         if arguments.pipeline_input == PipelineInputType.CONSOLE:
             return ConsoleInput(arguments)
@@ -49,13 +49,15 @@ class IPipelineInput(ABC):
 
         return device_config, file_data
 
-    def _get_activity(self, device_config: {}, **file_data) -> IActivity:
+    def _get_activity(self, pipeline_input_type: PipelineInputType, device_config: {}, **file_data) -> IActivity:
         try:
             activity_type: str = file_data[InputConfig.ACTIVITY_TYPE_FIELD.value]
 
             if activity_type == ActivityType.DRIVING.value:
                 commands: List[Dict] = file_data[InputConfig.DRIVING_COMMANDS.value]
-                return DrivingActivity(device_config=device_config, commands=commands)
+                return DrivingActivity(pipeline_input_type=pipeline_input_type,
+                                       device_config=device_config,
+                                       commands=commands)
             else:
                 return None
 

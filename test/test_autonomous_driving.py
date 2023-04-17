@@ -1,7 +1,5 @@
-import argparse
 import logging
 from types import SimpleNamespace
-from unittest.mock import patch
 from unittest import TestCase
 
 from Projects.AutonomousDriving.Config import Arguments
@@ -14,10 +12,10 @@ from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInpu
 from RPi import GPIO
 
 # inputs & inputs
-# device_config = "test/devices.json"
-# commands = "test/commands.json"
-device_config = "devices.json"
-commands = "commands.json"
+device_config = "test/devices.json"
+commands = "test/commands.json"
+# device_config = "devices.json"
+# commands = "commands.json"
 logging.basicConfig(level=logging.INFO)
 
 
@@ -25,18 +23,18 @@ class Test(TestCase):
 
     def _execute_test(self, run_n_times: int):
 
+        data: {} = {
+            'pipeline_input': PipelineInputType.CONSOLE.name,
+            'devices_config_file': device_config,
+            'commands': commands,
+            'gpio_warnings_enabled': False,
+            'logging_level': 'info'
+        }
+        args: SimpleNamespace = SimpleNamespace(**data)
+        arguments: Arguments = Arguments(args)
+
         for _ in range(run_n_times):
             logging.info(f"\n\n*** TEST EXECUTION ***")
-
-            data: {} = {
-                'pipeline_input': PipelineInputType.CONSOLE.name,
-                'devices_config_file': device_config,
-                'commands': commands,
-                'gpio_warnings_enabled': False,
-                'logging_level': 'info'
-            }
-            args: SimpleNamespace = SimpleNamespace(**data)
-            arguments: Arguments = Arguments(args)
 
             pipeline_input_type: PipelineInputType = PipelineInputType.CONSOLE
             pipeline_input: IPipelineInput = IPipelineInput.get_pipeline_input(arguments)
