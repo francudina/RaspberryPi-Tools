@@ -45,18 +45,27 @@ class RandomDrivingAlgorithm(DrivingAlgorithm):
 
             logging.info(f"\n > command {command.activity_type}: START ({TimeUtils.current_time()})")
 
+            command.status = ExecutablesStatus.IN_PROGRESS
             started: bool = command.start(activity=self.driving_activity)
+
+            command.status = ExecutablesStatus.DONE if started \
+                else ExecutablesStatus.BEFORE_COMPENSATION
 
             # reset events if needed after command execution!
             self.driving_activity.event_reset(command=command, is_compensation=False)
 
+            command.status = ExecutablesStatus.BEFORE_STOP
             ended: bool = command.stop(activity=self.driving_activity)
+            command.status = ExecutablesStatus.FINISHED if ended \
+                else ExecutablesStatus.STOP_FAILED
 
             logging.info(f" > command {command.activity_type}: END ({TimeUtils.current_time()})")
 
             self.add(command)
 
         self.end_time = datetime.now()
+        self.status = ExecutablesStatus.FINISHED
+
         logging.info(f"\n\n < algorithm finished ({TimeUtils.current_time()})")
 
     def stop(self, **kwargs) -> bool:
