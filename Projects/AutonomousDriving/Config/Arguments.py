@@ -28,7 +28,8 @@ class Arguments:
         self.gpio_warnings_enabled = args.gpio_warnings_enabled
         self.logging_level = getattr(logging, str.upper(args.logging_level))
 
-        self.algorithm = DrivingAlgorithmType[str.upper(args.algorithm)]
+        if args.algorithm:
+            self.algorithm = DrivingAlgorithmType[str.upper(args.algorithm)]
         self.max_execution_seconds = args.max_execution_seconds
 
 
