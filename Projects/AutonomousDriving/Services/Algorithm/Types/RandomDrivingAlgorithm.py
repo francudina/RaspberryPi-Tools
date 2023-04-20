@@ -39,6 +39,8 @@ class RandomDrivingAlgorithm(DrivingAlgorithm):
             delta: timedelta = datetime.now() - self.start_time
             if self.max_execution_seconds \
                     and delta.total_seconds() >= self.max_execution_seconds:
+
+                logging.info(f"\n# MAX execution time reached, terminating ... ({TimeUtils.current_time()})")
                 break
 
             command: IDrivingCommand = self._pick_next_command()
@@ -49,6 +51,9 @@ class RandomDrivingAlgorithm(DrivingAlgorithm):
 
             command.status = ExecutablesStatus.IN_PROGRESS
             started: bool = command.start(activity=self.driving_activity)
+
+            if not started:
+                logging.info(f" > execution FAILED ({TimeUtils.current_time()})")
 
             command.status = ExecutablesStatus.DONE if started \
                 else ExecutablesStatus.BEFORE_COMPENSATION

@@ -138,3 +138,7 @@ class IActivity(IQueue[ICommand], ICompensating):
     def add_commands(self, input_commands: List[ICommand]):
         for command in input_commands:
             self.add(command)
+
+    @abstractmethod
+    def skip_next_activity_execution(self) -> bool:
+        pass

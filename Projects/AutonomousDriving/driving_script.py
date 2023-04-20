@@ -19,11 +19,15 @@ if __name__ == "__main__":
 
     try:
         # iteration start
+        iteration: int = 0
         while True:
             activity: IActivity = pipeline_input.next_input()
             if activity is None:
                 break
+            if iteration != 0 and activity.skip_next_activity_execution():
+                break
 
+            iteration += 1
             added: bool = pipeline.add(activity)
             if not added:
                 continue

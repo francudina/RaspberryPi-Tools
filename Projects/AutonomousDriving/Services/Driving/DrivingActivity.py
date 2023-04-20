@@ -154,6 +154,14 @@ class DrivingActivity(IActivity):
         except Exception as e:
             logging.error(f"Exception in DrivingActivity._pre_stop_method() method: {e}")
             return False
+        
+    def skip_next_activity_execution(self) -> bool:
+        """
+        Method used to determine if next pipeline execution is needed.
+        E.g. for Algorithms there is no need for next Activity execution, so termination is needed!
+        :return: 
+        """
+        return self.pipeline_input_type == PipelineInputType.ALGORITHM
 
     @staticmethod
     def get_commands(received_commands: List[Dict]) -> List[IDrivingCommand]:
@@ -237,3 +245,4 @@ class DrivingActivity(IActivity):
             return DrivingTurn.RIGHT
         else:
             return DrivingTurn.NONE
+        
