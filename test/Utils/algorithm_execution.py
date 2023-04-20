@@ -8,11 +8,16 @@ from Projects.Executables.Activities.IActivity import IActivity
 from Projects.Executables.ExecutablesStatus import ExecutablesStatus
 from Projects.Executables.Pipelines.IPipeline import IPipeline
 from Projects.Executables.Pipelines.Inputs.IPipelineInput import IPipelineInput
+from RPi import GPIO
 
 
 def execute_test(test_case: TestCase, args: SimpleNamespace):
 
-    logging.info(f"\n\n*** TEST EXECUTION ***")
+    logging.info(f"\n\n\t*** TEST EXECUTION ***")
+    logging.info(f"(i) Test params:")
+    logging.info(f"\t > current threshold: {GPIO.CURRENT_THRESHOLD}")
+    logging.info(f"\t > current sleep: {GPIO.CURRENT_SLEEP}")
+    logging.info(f"\t > arguments: {args}")
 
     arguments: Arguments = Arguments(args)
 
