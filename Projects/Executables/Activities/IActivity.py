@@ -37,8 +37,11 @@ class IActivity(IQueue[ICommand], ICompensating):
 
     def start(self, **kwargs) -> bool:
         self.execution_start = datetime.now()
-        self.status = ExecutablesStatus.IN_PROGRESS
+
         current_command: ICommand = self.next()
+        self.status = ExecutablesStatus.IN_PROGRESS if current_command \
+            else ExecutablesStatus.NOT_STARTED
+
         while current_command is not None and not self.__stop_received:
             # for compensation process
             self.executed_commands.appendleft(current_command)

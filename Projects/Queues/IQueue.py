@@ -31,5 +31,5 @@ class IQueue(Generic[PayloadType]):
         except:
             return None
 
-    def queue_size(self) -> int:
-        return self.__queue.qsize()
+    def is_empty(self) -> bool:
+        return self.__queue.empty()

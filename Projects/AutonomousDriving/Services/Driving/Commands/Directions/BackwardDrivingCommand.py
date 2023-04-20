@@ -4,7 +4,6 @@ from datetime import timedelta
 from Projects.AutonomousDriving.Services.Driving.Commands.DirectionType import DirectionType
 from Projects.AutonomousDriving.Services.Driving.Commands.DrivingTurn import DrivingTurn
 from Projects.AutonomousDriving.Services.Driving.Commands.IDrivingCommand import IDrivingCommand
-from Projects.AutonomousDriving.Services.Driving.DrivingActivity import DrivingActivity
 from Projects.AutonomousDriving.Services.Driving.DrivingConfig import DrivingConfig
 from Projects.Executables.Utils import TimeUtils
 
@@ -17,6 +16,8 @@ class BackwardDrivingCommand(IDrivingCommand):
         self.execution_time: timedelta = execution_time
 
     def start(self, **kwargs) -> bool:
+        from Projects.AutonomousDriving.Services.Driving.DrivingActivity import DrivingActivity
+
         turn: DrivingTurn = DrivingActivity.driving_turn_by_angle(self.wheel_angle)
         logging.info(f"  > direction {self.direction_type.name}, turn {turn.name} ... ({TimeUtils.current_time()})")
         return self.__execution(DirectionType.BACKWARD, method_name='start', **kwargs)

@@ -191,17 +191,17 @@ class DrivingActivity(IActivity):
     ) -> IDrivingCommand:
 
         wheel_angle: float = DrivingActivity.driving_turn_angle(driving_turn)
-        if direction_type == DirectionType.FORWARD.value:
+        if direction_type == DirectionType.FORWARD:
             return ForwardDrivingCommand(
                     wheel_angle=wheel_angle,
                     execution_time=execution_time
                 )
-        elif direction_type == DirectionType.BACKWARD.value:
+        elif direction_type == DirectionType.BACKWARD:
             return BackwardDrivingCommand(
                     wheel_angle=wheel_angle,
                     execution_time=execution_time
                 )
-        elif direction_type == DirectionType.NONE.value:
+        elif direction_type == DirectionType.NONE:
             return NoneDrivingCommand(
                     execution_time=execution_time
                 )

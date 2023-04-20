@@ -13,7 +13,8 @@
     },
     {
       "DRIVING_DIRECTION_TYPE": "NONE",
-      "DRIVING_EXECUTION_TIME": "0:0:2"
+      "DRIVING_EXECUTION_TIME": "0:0:2",
+      "DRIVING_WHEEL_TURN": "NONE"
     }
   ]
 }

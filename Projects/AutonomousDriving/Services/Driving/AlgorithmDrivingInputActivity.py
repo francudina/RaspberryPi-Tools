@@ -32,17 +32,13 @@ class AlgorithmDrivingInputActivity(DrivingActivity, AlgorithmInput):
 
     def start(self, **kwargs) -> bool:
 
-        # first execute init commands if needed then run algorithm!
-        if self.queue_size() > 0:
-            # ignore result; this result might be in the log data
-            # to track execution or self.__executed_commands list!
-            passed: bool = super().start(**kwargs)
-            # check status
-            if self.status == ExecutablesStatus.FAILED:
-                return False
+        passed: bool = super().start(**kwargs)
+        # check status
+        if self.status == ExecutablesStatus.FAILED:
+            return False
 
         # start with algorithm process!
-        algorithm: DrivingAlgorithm = self._choose_algorithm(self.algorithm_type)
+        algorithm: DrivingAlgorithm = self._choose_algorithm(self.algorithm_type, self.arguments.max_execution_seconds)
         started: bool = algorithm.start()
         # stopped: bool = algorithm.stop()
 
@@ -80,8 +76,15 @@ class AlgorithmDrivingInputActivity(DrivingActivity, AlgorithmInput):
             logging.error(f"Error during activity creation: {e}")
             return []
 
-    def _choose_algorithm(self, driving_algorithm_type: DrivingAlgorithmType) -> DrivingAlgorithm:
+    def _choose_algorithm(
+            self,
+            driving_algorithm_type: DrivingAlgorithmType,
+            max_execution_seconds: int
+    ) -> DrivingAlgorithm:
         if driving_algorithm_type == DrivingAlgorithmType.RANDOM:
-            return RandomDrivingAlgorithm(driving_activity=self)
+            return RandomDrivingAlgorithm(
+                driving_activity=self,
+                max_execution_seconds=max_execution_seconds
+            )
         else:
             raise ValueError(f'Wrong/Not supported DrivingAlgorithmType sent: {driving_algorithm_type}')

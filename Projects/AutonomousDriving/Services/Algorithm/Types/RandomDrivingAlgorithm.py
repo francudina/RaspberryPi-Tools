@@ -28,6 +28,8 @@ class RandomDrivingAlgorithm(DrivingAlgorithm):
 
     def start(self, **kwargs) -> bool:
 
+        logging.info(f"\n# Algorithm start: {self.__class__.__name__} ({TimeUtils.current_time()})")
+
         self.status = ExecutablesStatus.IN_PROGRESS
         self.start_time = datetime.now()
 
@@ -108,14 +110,15 @@ class RandomDrivingAlgorithm(DrivingAlgorithm):
             (DirectionType.NONE, DrivingTurn.RIGHT): 0.1  # only moving wheels right
         }
         # sorting by value
-        return {k: v for k, v in sorted(options.items(), key=lambda item: item[1])}
+        return {k: v for k, v in sorted(options.items(), key=lambda item: -item[1])}
 
     def _weighted_random_choice(self, options: {}) -> Tuple[DirectionType, DrivingTurn]:
-        max_val = sum(probability for _, probability in options.items())
-        pick = random.uniform(0, max_val)
-        current = 0
+        max_val: float = sum(probability for _, probability in options.items())
+        pick: float = random.uniform(0, max_val)
+        current: float = 0
         for direction_turn_pair, probability in options.items():
-            current += probability
-            if current > pick:
+            upper: float = current + probability
+            if current < pick <= upper:
                 return direction_turn_pair
+            current = upper
 

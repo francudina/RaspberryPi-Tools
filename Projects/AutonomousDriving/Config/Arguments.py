@@ -80,7 +80,7 @@ def parser_config() -> argparse.ArgumentParser:
     parser.add_argument('--max-seconds',
                         dest='max_execution_seconds',
                         type=int,
-                        default=None,
+                        default=30,
                         help='maximum number of seconds allowed for execution; default: None (unlimited)')
     return parser
 
