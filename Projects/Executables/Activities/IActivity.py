@@ -56,7 +56,7 @@ class IActivity(IQueue[ICommand], ICompensating):
                 else ExecutablesStatus.BEFORE_COMPENSATION
 
             # reset events if needed after command execution!
-            self.event_reset(command=current_command, is_compensation=False)
+            self.event_reset(command=current_command)
 
             if not started:
                 self.execution_end = datetime.now()
@@ -68,7 +68,7 @@ class IActivity(IQueue[ICommand], ICompensating):
                              f"({TimeUtils.current_time()})")
 
                 # reset events if needed after command compensation!
-                self.event_reset(command=current_command, is_compensation=True)
+                self.event_reset(command=current_command)
 
                 self.status = ExecutablesStatus.DONE_WITH_COMPENSATION if compensated \
                     else ExecutablesStatus.COMPENSATION_FAILED
@@ -105,7 +105,7 @@ class IActivity(IQueue[ICommand], ICompensating):
         pass
 
     @abstractmethod
-    def event_reset(self, command: ICommand, is_compensation: bool) -> None:
+    def event_reset(self, command: ICommand) -> None:
         pass
 
     def stop(self, **kwargs) -> bool:

@@ -19,6 +19,7 @@ class Arguments:
 
     algorithm: DrivingAlgorithmType
     max_execution_seconds: int
+    tabu_queue_size: int
 
     def __init__(self, args):
         self.pipeline_input = PipelineInputType[str.upper(args.pipeline_input)]
@@ -31,6 +32,7 @@ class Arguments:
         if args.algorithm:
             self.algorithm = DrivingAlgorithmType[str.upper(args.algorithm)]
         self.max_execution_seconds = args.max_execution_seconds
+        self.tabu_queue_size = args.tabu_queue_size
 
 
 def _str2bool(v):
@@ -82,7 +84,12 @@ def parser_config() -> argparse.ArgumentParser:
                         dest='max_execution_seconds',
                         type=int,
                         default=30,
-                        help='maximum number of seconds allowed for execution; default: None (unlimited)')
+                        help='maximum number of seconds allowed for execution; default: 30')
+    parser.add_argument('--tabu-size',
+                        dest='tabu_queue_size',
+                        type=int,
+                        default=2,
+                        help='direction tabu search queue (FIFO) size; default: 2')
     return parser
 
 

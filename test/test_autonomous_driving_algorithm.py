@@ -18,7 +18,13 @@ logging.basicConfig(level=logging.INFO)
 
 class Test(TestCase):
 
-    def _execute(self, run_n_times: int, algorithm: DrivingAlgorithmType, max_execution_seconds: int):
+    def _execute(
+            self,
+            run_n_times: int,
+            algorithm: DrivingAlgorithmType,
+            max_execution_seconds: int,
+            tabu_queue_size: int = None
+    ):
         data: {} = {
             'pipeline_input': PipelineInputType.ALGORITHM.name,
             'devices_config_file': device_config,
@@ -26,15 +32,31 @@ class Test(TestCase):
             'gpio_warnings_enabled': False,
             'logging_level': 'info',
             'algorithm': algorithm.name,
-            'max_execution_seconds': max_execution_seconds
+            'max_execution_seconds': max_execution_seconds,
+            'tabu_queue_size': tabu_queue_size
         }
         args: SimpleNamespace = SimpleNamespace(**data)
 
         for _ in range(run_n_times):
             execute_test(self, args)
 
-    def test_driving_happy_path(self):
+    def test_random_driving_happy_path(self):
         # setting lower probability to avoid obstacle detection
         GPIO.CURRENT_THRESHOLD = 0.12
         GPIO.CURRENT_SLEEP = 1
-        self._execute(run_n_times=1, algorithm=DrivingAlgorithmType.RANDOM, max_execution_seconds=6)
+        self._execute(
+            run_n_times=1,
+            algorithm=DrivingAlgorithmType.RANDOM,
+            max_execution_seconds=6
+        )
+
+    def test_tabu_driving_happy_path(self):
+        # setting lower probability to avoid obstacle detection
+        GPIO.CURRENT_THRESHOLD = 0.4
+        GPIO.CURRENT_SLEEP = 0.5
+        self._execute(
+            run_n_times=1,
+            algorithm=DrivingAlgorithmType.TABU_SEARCH,
+            max_execution_seconds=5,
+            tabu_queue_size=3
+        )
