@@ -9,10 +9,10 @@ from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInpu
 from test.Utils.algorithm_execution import execute_test
 
 # inputs & inputs
-# device_config = "test/devices.json"
-# commands = "test/commands.json"
-device_config = "devices.json"
-commands = "commands.json"
+device_config = "test/devices.json"
+commands = "test/commands.json"
+# device_config = "devices.json"
+# commands = "commands.json"
 logging.basicConfig(level=logging.INFO)
 
 
@@ -41,25 +41,25 @@ class Test(TestCase):
         for _ in range(run_n_times):
             execute_test(self, args)
 
-    # def test_random_driving_happy_path(self):
-    #     # setting lower probability to avoid obstacle detection
-    #     GPIO.CURRENT_THRESHOLD = 0.12
-    #     GPIO.CURRENT_SLEEP = 1
-    #     self._execute(
-    #         run_n_times=1,
-    #         algorithm=DrivingAlgorithmType.RANDOM,
-    #         use_init_commands=True,
-    #         max_execution_seconds=6
-    #     )
+    def test_random_driving_happy_path(self):
+        # setting lower probability to avoid obstacle detection
+        GPIO.CURRENT_THRESHOLD = 0.12
+        GPIO.CURRENT_SLEEP = 1
+        self._execute(
+            run_n_times=1,
+            algorithm=DrivingAlgorithmType.RANDOM,
+            use_init_commands=True,
+            max_execution_seconds=6
+        )
 
     def test_tabu_driving_happy_path(self):
         # setting higher to force failures of commands
-        GPIO.CURRENT_THRESHOLD = 0.12
-        GPIO.CURRENT_SLEEP = 1.5
+        GPIO.CURRENT_THRESHOLD = 0.25
+        GPIO.CURRENT_SLEEP = 0.8
         self._execute(
             run_n_times=1,
             algorithm=DrivingAlgorithmType.TABU_SEARCH,
             use_init_commands=False,
-            max_execution_seconds=15,
+            max_execution_seconds=20,
             tabu_queue_size=2
         )

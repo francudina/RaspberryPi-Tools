@@ -133,11 +133,11 @@ class DrivingAlgorithm(IAlgorithm, ABC):
             (DirectionType.FORWARD, DrivingTurn.LEFT): 0.25,
             (DirectionType.FORWARD, DrivingTurn.RIGHT): 0.25,
 
-            (DirectionType.BACKWARD, DrivingTurn.NONE): 0.4,
-            (DirectionType.BACKWARD, DrivingTurn.LEFT): 0.2,
-            (DirectionType.BACKWARD, DrivingTurn.RIGHT): 0.2,
+            (DirectionType.BACKWARD, DrivingTurn.NONE): 0.35,
+            (DirectionType.BACKWARD, DrivingTurn.LEFT): 0.25,
+            (DirectionType.BACKWARD, DrivingTurn.RIGHT): 0.25,
 
-            (DirectionType.NONE, DrivingTurn.NONE): 0.1
+            (DirectionType.NONE, DrivingTurn.NONE): 0.3
         }
         tmp = list(options.items())
         random.shuffle(tmp)
