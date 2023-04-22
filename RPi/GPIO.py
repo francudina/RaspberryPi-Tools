@@ -59,7 +59,7 @@ def setup(a: int, b=None, pull_up_down=None):
 
 def input(a: int, b=None):
     # logging.info("input:", a, b)
-    return HIGH
+    return LOW
 
 
 def output(a: int, b=None):

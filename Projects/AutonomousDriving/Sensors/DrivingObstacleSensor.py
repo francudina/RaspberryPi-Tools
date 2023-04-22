@@ -30,7 +30,7 @@ class DrivingObstacleSensor(ObstacleSensor):
         logging.info(f"\t(?) {self.sensor_for_direction.name} - something detected: {state}")
 
         # if change was to the HIGH then skip!
-        if state == GPIO.LOW:
+        if state == GPIO.HIGH:
             return
 
         # check direction of the sensor to set the value!
