@@ -59,7 +59,7 @@ def setup(a: int, b=None, pull_up_down=None):
 
 def input(a: int, b=None):
     # logging.info("input:", a, b)
-    return HIGH
+    return LOW
 
 
 def output(a: int, b=None):
@@ -77,11 +77,11 @@ def setwarnings(flag: bool=None):
     pass
 
 
-"""
-Mocking sensor readings with uniform random number generator. 
-If value is less then threshold then callback method is triggered.
-"""
 def dummy_obstacle_sensor_detector(channel: int, callback, stop_event: Event):
+    """
+    Mocking sensor readings with uniform random number generator.
+    If value is less than threshold then callback method is triggered.
+    """
     threshold: float = CURRENT_THRESHOLD
     sleep_between: float = CURRENT_SLEEP
     logging.info(f"# mocked obstacle sensor ({channel}): start ({TimeUtils.current_time()})")

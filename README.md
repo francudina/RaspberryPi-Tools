@@ -9,13 +9,13 @@ Repository used as a playground for Raspberry Pi ideas
 
 - executing (from `root` dir):
     ```
-    # executing script:
-    python3 -m Projects.AutonomousDriving.driving_script
-  
-    # enter path to configuration file, e.g.:
-    Projects/AutonomousDriving/driving_input.json
+    # executing script, see below for list of arguments:
+    python3 -m Projects.AutonomousDriving.driving_script [<arguments>]
     ```
   
+  - see `[<arguments>]` options with `-h` or `--help` param on `driving_script`
+  
+
 - servo calibration (from `root` dir):
     ```
     # <servo_pin_number> <board_mode> are input params, e.g.: 4 GPIO.BCM

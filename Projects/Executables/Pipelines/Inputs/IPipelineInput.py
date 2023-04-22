@@ -1,14 +1,20 @@
+import logging
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import List, Dict
 
+from Projects.AutonomousDriving.Config.Arguments import Arguments
+from Projects.AutonomousDriving.Services.Driving.DrivingActivity import DrivingActivity
+from Projects.Executables.Activities.ActivityType import ActivityType
 from Projects.Executables.Activities.IActivity import IActivity
+from Projects.Executables.Pipelines.Inputs.InputConfig import InputConfig
 from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
+from Projects.Executables.Utils import FileUtils
 
 
 class IPipelineInput(ABC):
 
-    def __init__(self, input_type:  PipelineInputType):
-        self.input_type = input_type
+    def __init__(self, pipline_input_type: PipelineInputType):
+        self.input_type: PipelineInputType = pipline_input_type
 
     @abstractmethod
     def _get_input(self, **kwargs) -> IActivity:
@@ -16,26 +22,45 @@ class IPipelineInput(ABC):
 
     def next_input(self, **kwargs) -> IActivity:
         return self._get_input(**kwargs)
-        # iter_num: int = 3
-        # chosen_activity: IActivity = None
-        # while iter_num > 0:
-        #     iter_num -= 1
-        #     chosen_activity = self._get_input(**kwargs)
-        #     if chosen_activity is not None:
-        #         break
-        # return chosen_activity
 
     @staticmethod
-    def get_pipeline_input(pipeline_input_type: PipelineInputType):
+    def get_pipeline_input(arguments: Arguments):
         from Projects.Executables.Pipelines.Inputs.Types.WebInput import WebInput
-        from Projects.Executables.Pipelines.Inputs.Types.AlgorithmInput import AlgorithmInput
         from Projects.Executables.Pipelines.Inputs.Types.ConsoleInput import ConsoleInput
+        from Projects.AutonomousDriving.Services.Driving.AlgorithmDrivingInputActivity import \
+            AlgorithmDrivingInputActivity
 
-        if pipeline_input_type == PipelineInputType.CONSOLE:
-            return ConsoleInput()
-        elif pipeline_input_type == PipelineInputType.WEB:
-            return WebInput()
-        elif pipeline_input_type == PipelineInputType.ALGORITHM:
-            return AlgorithmInput()
+        if arguments.pipeline_input == PipelineInputType.CONSOLE:
+            return ConsoleInput(arguments)
+        elif arguments.pipeline_input == PipelineInputType.WEB:
+            return WebInput(arguments)
+        elif arguments.pipeline_input == PipelineInputType.ALGORITHM:
+            return AlgorithmDrivingInputActivity(arguments)
         else:
-            raise ValueError(f"Wrong PipelineInputType sent: {pipeline_input_type}")
+            raise ValueError(f"Wrong PipelineInputType sent: {arguments.pipeline_input}")
+
+    def _get_init_configs(self, arguments: Arguments):
+        device_config: {} = FileUtils.read_file(arguments.devices_config_file)
+
+        # if commands were given, load them!
+        file_data: Dict = {}
+        if arguments.commands:
+            file_data = FileUtils.read_file(arguments.commands, raise_exception=False)
+
+        return device_config, file_data
+
+    def _get_activity(self, pipeline_input_type: PipelineInputType, device_config: {}, **file_data) -> IActivity:
+        try:
+            activity_type: str = file_data[InputConfig.ACTIVITY_TYPE_FIELD.value]
+
+            if activity_type == ActivityType.DRIVING.value:
+                commands: List[Dict] = file_data[InputConfig.DRIVING_COMMANDS.value]
+                return DrivingActivity(pipeline_input_type=pipeline_input_type,
+                                       device_config=device_config,
+                                       commands=commands)
+            else:
+                return None
+
+        except Exception as e:
+            logging.error(f"Error during activity creation: {e}")
+            return None

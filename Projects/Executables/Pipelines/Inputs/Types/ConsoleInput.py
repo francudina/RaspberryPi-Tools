@@ -1,19 +1,21 @@
-import json
-import logging
 from typing import Dict
 
-from Projects.AutonomousDriving.Services.Driving.DrivingActivity import DrivingActivity
-from Projects.Executables.Activities.ActivityType import ActivityType
+from Projects.AutonomousDriving.Config.Arguments import Arguments
 from Projects.Executables.Activities.IActivity import IActivity
 from Projects.Executables.Pipelines.Inputs.IPipelineInput import IPipelineInput
-from Projects.Executables.Pipelines.Inputs.InputConfig import InputConfig
 from Projects.Executables.Pipelines.Inputs.PipelineInputType import PipelineInputType
+from Projects.Executables.Utils import FileUtils
 
 
 class ConsoleInput(IPipelineInput):
 
-    def __init__(self):
+    def __init__(self, arguments: Arguments):
         super(ConsoleInput, self).__init__(PipelineInputType.CONSOLE)
+        self.arguments: Arguments = arguments
+        # config and init commands
+        device_config, file_data = self._get_init_configs(self.arguments)
+        self.device_config: Dict = device_config
+        self.file_data: Dict = file_data
 
     def _get_input(self, **kwargs) -> IActivity:
         iter_num: int = 3
@@ -22,12 +24,22 @@ class ConsoleInput(IPipelineInput):
         while iter_num > 1:
             iter_num -= 1
 
-            input_data: str = self._read_input(iter_num)
-            file_data: Dict = self.__read_file(input_data)
-            if file_data is None:
+            # if commands were not given
+            if not self.file_data:
+                input_data: str = self._read_input(iter_num)
+                self.file_data: Dict = FileUtils.read_file(input_data)
+
+            if self.file_data is None:
                 continue
 
-            activity = self.__get_activity(**file_data)
+            activity = self._get_activity(
+                pipeline_input_type=self.arguments.pipeline_input,
+                device_config=self.device_config,
+                **self.file_data
+            )
+            # reset loaded data after activity creation!
+            self.file_data = {}
+
             if activity is None:
                 continue
             break
@@ -36,26 +48,3 @@ class ConsoleInput(IPipelineInput):
 
     def _read_input(self, iter_num: int) -> str:
         return input(f'\n## Insert ACTIVITY Config file path (attempts remaining: {iter_num}): ')
-
-# private
-    def __get_activity(self, **file_data) -> IActivity:
-        try:
-            activity_type: str = file_data[InputConfig.ACTIVITY_TYPE_FIELD.value]
-
-            # todo dodaj i druge tipove aktivnosti ovdje da se kreiraju!
-            if activity_type == ActivityType.DRIVING.value:
-                return DrivingActivity(pipeline_input_type=self.input_type, **file_data)
-            else:
-                return None
-
-        except Exception as e:
-            logging.error(f"Error during activity creation: {e}")
-            return None
-
-    def __read_file(self, file_path: str):
-        try:
-            with open(file_path, 'r', encoding="utf-8") as fh:
-                return json.loads(fh.read())
-        except Exception as e:
-            logging.info(f"(e) Exception: {e}")
-            return None

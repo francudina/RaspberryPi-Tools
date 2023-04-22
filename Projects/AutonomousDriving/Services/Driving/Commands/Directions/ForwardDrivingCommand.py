@@ -1,7 +1,9 @@
 import logging
 from datetime import timedelta
+from threading import Event
 
 from Projects.AutonomousDriving.Services.Driving.Commands.DirectionType import DirectionType
+from Projects.AutonomousDriving.Services.Driving.Commands.DrivingTurn import DrivingTurn
 from Projects.AutonomousDriving.Services.Driving.Commands.IDrivingCommand import IDrivingCommand
 from Projects.AutonomousDriving.Services.Driving.DrivingConfig import DrivingConfig
 from Projects.Executables.External.Motors.MotorConfig import MotorConfig
@@ -16,7 +18,10 @@ class ForwardDrivingCommand(IDrivingCommand):
         self.execution_time: timedelta = execution_time
 
     def start(self, **kwargs) -> bool:
-        logging.info(f"  > direction {self.direction_type} ... ({TimeUtils.current_time()})")
+        from Projects.AutonomousDriving.Services.Driving.DrivingActivity import DrivingActivity
+
+        turn: DrivingTurn = DrivingActivity.driving_turn_by_angle(self.wheel_angle)
+        logging.info(f"  > direction {self.direction_type.name}, turn {turn.name} ... ({TimeUtils.current_time()})")
         return self.__execution(DirectionType.FORWARD, method_name='start', **kwargs)
 
     def stop(self, **kwargs) -> bool:
@@ -48,17 +53,20 @@ class ForwardDrivingCommand(IDrivingCommand):
             # wheels to position
             activity.front_wheels_motor.new_result(input_angle=self.wheel_angle)
 
-            # start back wheels rotation
             expected_execution_time: timedelta = self.execution_time
+            direction_event: Event = activity.get_obstacle_sensor_front_event()
             if method_name == 'compensate':
                 # if "compensate" then compensate previous command with the
                 # same amount of execution time but different direction!
                 expected_execution_time = self.total_execution_time()
+                # use different sensor if needed for compensation!
+                direction_event = activity.get_obstacle_sensor_back_event()
 
+            # start back wheels rotation
             passed: bool = activity.back_wheels_motor.new_result(
                 execution_time=expected_execution_time,
                 direction=direction_type,
-                event=activity.get_obstacle_sensor_front_event()
+                event=direction_event
             )
 
             if activity.use_LEDs:

@@ -14,16 +14,19 @@ from Projects.Queues.IQueue import IQueue
 
 
 class IActivity(IQueue[ICommand], ICompensating):
+    """
+    Generic interface for activity execution.
+    """
 
     def __init__(self, pipeline_input_type: PipelineInputType, input_commands: List[ICommand], total_events: int,
                  queue_size: int = -1, blocking_queue: bool = True, blocking_timeout: timedelta = None):
         super(IActivity, self).__init__(queue_size, blocking_queue, blocking_timeout)
-        # init vars
-        self.activity_input_type: PipelineInputType = pipeline_input_type
+        # - pipeline input type
+        self.pipeline_input_type: PipelineInputType = pipeline_input_type
         # - insert commands
-        self.__add_commands(input_commands)
+        self.add_commands(input_commands)
         # - executed
-        self.__executed_commands: deque[ICommand] = deque()
+        self.executed_commands: deque[ICommand] = deque()
         # - additional
         self.__stop_received: bool = False
         # - events for thread sync instead of using time.sleep(...)!
@@ -34,11 +37,14 @@ class IActivity(IQueue[ICommand], ICompensating):
 
     def start(self, **kwargs) -> bool:
         self.execution_start = datetime.now()
-        self.status = ExecutablesStatus.IN_PROGRESS
+
         current_command: ICommand = self.next()
+        self.status = ExecutablesStatus.IN_PROGRESS if current_command \
+            else ExecutablesStatus.NOT_STARTED
+
         while current_command is not None and not self.__stop_received:
             # for compensation process
-            self.__executed_commands.appendleft(current_command)
+            self.executed_commands.appendleft(current_command)
 
             logging.info(f"\n > command {current_command.activity_type}: START ({TimeUtils.current_time()})")
 
@@ -50,7 +56,7 @@ class IActivity(IQueue[ICommand], ICompensating):
                 else ExecutablesStatus.BEFORE_COMPENSATION
 
             # reset events if needed after command execution!
-            self._event_reset(command=current_command, is_compensation=False)
+            self.event_reset(command=current_command, is_compensation=False)
 
             if not started:
                 self.execution_end = datetime.now()
@@ -58,11 +64,11 @@ class IActivity(IQueue[ICommand], ICompensating):
 
                 logging.info(f" \t> compensating command: START ({TimeUtils.current_time()})")
                 compensated: bool = current_command.compensate(activity=self)
-                logging.info(f" \t> compensating command: END {'=> FAILED again' if not compensated else ''} "
+                logging.info(f" \t> compensating command: {'FAILED again' if not compensated else 'END'} "
                              f"({TimeUtils.current_time()})")
 
                 # reset events if needed after command compensation!
-                self._event_reset(command=current_command, is_compensation=True)
+                self.event_reset(command=current_command, is_compensation=True)
 
                 self.status = ExecutablesStatus.DONE_WITH_COMPENSATION if compensated \
                     else ExecutablesStatus.COMPENSATION_FAILED
@@ -99,20 +105,19 @@ class IActivity(IQueue[ICommand], ICompensating):
         pass
 
     @abstractmethod
-    def _event_reset(self, command: ICommand, is_compensation: bool) -> None:
+    def event_reset(self, command: ICommand, is_compensation: bool) -> None:
         pass
 
     def stop(self, **kwargs) -> bool:
         self.__stop_received = True
         return self._pre_stop_method(**kwargs)
-        # return self.compensate(activity=self)
 
     def compensate(self, **kwargs) -> bool:
-        total: int = len(self.__executed_commands)
+        total: int = len(self.executed_commands)
         total_passed: int = 0
 
         try:
-            current_command: ICommand = self.__executed_commands.popleft()
+            current_command: ICommand = self.executed_commands.popleft()
         except:
             return True
 
@@ -121,7 +126,7 @@ class IActivity(IQueue[ICommand], ICompensating):
             total_passed = total_passed + 1 if passed else total_passed
 
             try:
-                current_command = self.__executed_commands.popleft()
+                current_command = self.executed_commands.popleft()
             except:
                 break
 
@@ -130,7 +135,10 @@ class IActivity(IQueue[ICommand], ICompensating):
     def total_execution_time(self):
         return self.execution_end - self.execution_start
 
-# private
-    def __add_commands(self, input_commands: List[ICommand]):
+    def add_commands(self, input_commands: List[ICommand]):
         for command in input_commands:
             self.add(command)
+
+    @abstractmethod
+    def skip_next_activity_execution(self) -> bool:
+        pass
