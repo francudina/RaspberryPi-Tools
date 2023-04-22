@@ -128,7 +128,15 @@ class DrivingAlgorithm(IAlgorithm, ABC):
         pass
 
     def _driving_weighted_options(self) -> {}:
-        options: {} = {
+        options: {} = self._create_default_options()
+        tmp = list(options.items())
+        random.shuffle(tmp)
+        # sorting by value
+        # return {k: v for k, v in sorted(options.items(), key=lambda item: -item[1])}
+        return dict(tmp)
+
+    def _create_default_options(self) -> {}:
+        return {
             (DirectionType.FORWARD, DrivingTurn.NONE): 0.5,
             (DirectionType.FORWARD, DrivingTurn.LEFT): 0.25,
             (DirectionType.FORWARD, DrivingTurn.RIGHT): 0.25,
@@ -139,11 +147,6 @@ class DrivingAlgorithm(IAlgorithm, ABC):
 
             (DirectionType.NONE, DrivingTurn.NONE): 0.3
         }
-        tmp = list(options.items())
-        random.shuffle(tmp)
-        # sorting by value
-        # return {k: v for k, v in sorted(options.items(), key=lambda item: -item[1])}
-        return dict(tmp)
 
     def _roulette_wheel_selection(self, options: {}) -> Tuple[DirectionType, DrivingTurn]:
         max_val: float = sum(probability for _, probability in options.items())

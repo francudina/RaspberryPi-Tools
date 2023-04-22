@@ -34,7 +34,9 @@ class Test(TestCase):
             'logging_level': 'info',
             'algorithm': algorithm.name,
             'max_execution_seconds': max_execution_seconds,
-            'tabu_queue_size': tabu_queue_size
+            'tabu_queue_size': tabu_queue_size,
+            'option_success_reward': 0.1,
+            'option_failure_penalty': 0.05
         }
         args: SimpleNamespace = SimpleNamespace(**data)
 
@@ -54,12 +56,12 @@ class Test(TestCase):
 
     def test_tabu_driving_happy_path(self):
         # setting higher to force failures of commands
-        GPIO.CURRENT_THRESHOLD = 0.25
-        GPIO.CURRENT_SLEEP = 0.8
+        GPIO.CURRENT_THRESHOLD = 0.12
+        GPIO.CURRENT_SLEEP = 1.5
         self._execute(
             run_n_times=1,
             algorithm=DrivingAlgorithmType.TABU_SEARCH,
             use_init_commands=False,
-            max_execution_seconds=20,
+            max_execution_seconds=15,
             tabu_queue_size=2
         )

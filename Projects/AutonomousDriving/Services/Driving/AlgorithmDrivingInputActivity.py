@@ -39,11 +39,7 @@ class AlgorithmDrivingInputActivity(DrivingActivity, AlgorithmInput):
             return False
 
         # start with algorithm process!
-        algorithm: DrivingAlgorithm = self._choose_algorithm(
-            self.algorithm_type,
-            self.arguments.max_execution_seconds,
-            self.arguments.tabu_queue_size
-        )
+        algorithm: DrivingAlgorithm = self._choose_algorithm()
         started: bool = algorithm.start()
         # stopped: bool = algorithm.stop()
 
@@ -87,22 +83,19 @@ class AlgorithmDrivingInputActivity(DrivingActivity, AlgorithmInput):
             logging.error(f"Error during activity creation: {e}")
             return []
 
-    def _choose_algorithm(
-            self,
-            driving_algorithm_type: DrivingAlgorithmType,
-            max_execution_seconds: int,
-            tabu_queue_size: int
-    ) -> DrivingAlgorithm:
-        if driving_algorithm_type == DrivingAlgorithmType.RANDOM:
+    def _choose_algorithm(self) -> DrivingAlgorithm:
+        if self.arguments.algorithm == DrivingAlgorithmType.RANDOM:
             return RandomDrivingAlgorithm(
                 driving_activity=self,
-                max_execution_seconds=max_execution_seconds
+                max_execution_seconds=self.arguments.max_execution_seconds
             )
-        elif driving_algorithm_type == DrivingAlgorithmType.TABU_SEARCH:
+        elif self.arguments.algorithm == DrivingAlgorithmType.TABU_SEARCH:
             return TabuSearchDrivingAlgorithm(
                 driving_activity=self,
-                max_execution_seconds=max_execution_seconds,
-                tabu_queue_size=tabu_queue_size
+                max_execution_seconds=self.arguments.max_execution_seconds,
+                tabu_queue_size=self.arguments.tabu_queue_size,
+                option_success_reward=self.arguments.option_success_reward,
+                option_failure_penalty=self.arguments.option_failure_penalty
             )
         else:
-            raise ValueError(f'Wrong/Not supported DrivingAlgorithmType sent: {driving_algorithm_type}')
+            raise ValueError(f'Wrong/Not supported DrivingAlgorithmType sent: {self.arguments.algorithm}')

@@ -25,7 +25,9 @@ class Test(TestCase):
             'logging_level': 'info',
             'algorithm': None,
             'max_execution_seconds': None,
-            'tabu_queue_size': None
+            'tabu_queue_size': None,
+            'option_success_reward': None,
+            'option_failure_penalty': None
         }
         args: SimpleNamespace = SimpleNamespace(**data)
 

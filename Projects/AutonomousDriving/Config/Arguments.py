@@ -20,6 +20,8 @@ class Arguments:
     algorithm: DrivingAlgorithmType
     max_execution_seconds: int
     tabu_queue_size: int
+    option_success_reward: float
+    option_failure_penalty: float
 
     def __init__(self, args):
         self.pipeline_input = PipelineInputType[str.upper(args.pipeline_input)]
@@ -33,6 +35,8 @@ class Arguments:
             self.algorithm = DrivingAlgorithmType[str.upper(args.algorithm)]
         self.max_execution_seconds = args.max_execution_seconds
         self.tabu_queue_size = args.tabu_queue_size
+        self.option_success_reward = args.option_success_reward
+        self.option_failure_penalty = args.option_failure_penalty
 
 
 def _str2bool(v):
@@ -90,6 +94,16 @@ def parser_config() -> argparse.ArgumentParser:
                         type=int,
                         default=2,
                         help='direction tabu search queue (FIFO) size; default: 2')
+    parser.add_argument('--success-reward',
+                        dest='option_success_reward',
+                        type=float,
+                        default=0.1,
+                        help='(Tabu algorithm only!) reward direction for which was successful; default: 0.1')
+    parser.add_argument('--failure-penalty',
+                        dest='option_failure_penalty',
+                        type=float,
+                        default=0.05,
+                        help='(Tabu algorithm only!) penalty for direction which was unsuccessful; default: 0.05')
     return parser
 
 
