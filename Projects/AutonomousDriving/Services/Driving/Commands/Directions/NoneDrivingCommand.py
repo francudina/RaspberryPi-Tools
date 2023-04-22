@@ -42,7 +42,6 @@ class NoneDrivingCommand(IDrivingCommand):
         try:
             # wheels to position
             activity.front_wheels_motor.new_result(input_angle=self.wheel_angle)
-            # time.sleep(self.execution_time.total_seconds())
             interrupted: bool = TimeUtils.blocking_sleep(self.execution_time.total_seconds())
 
             # True only if operation wasn't interrupted

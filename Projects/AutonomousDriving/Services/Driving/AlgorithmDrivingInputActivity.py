@@ -47,6 +47,9 @@ class AlgorithmDrivingInputActivity(DrivingActivity, AlgorithmInput):
         started: bool = algorithm.start()
         # stopped: bool = algorithm.stop()
 
+        # update algorithm input status!
+        self.status = algorithm.status
+
         # return started and stopped
         return started
 
@@ -70,6 +73,9 @@ class AlgorithmDrivingInputActivity(DrivingActivity, AlgorithmInput):
 
     def _get_commands(self, **file_data) -> List[Dict]:
         try:
+            if InputConfig.ACTIVITY_TYPE_FIELD.value not in file_data.keys():
+                return []
+
             activity_type: str = file_data[InputConfig.ACTIVITY_TYPE_FIELD.value]
 
             if activity_type != ActivityType.DRIVING.value:

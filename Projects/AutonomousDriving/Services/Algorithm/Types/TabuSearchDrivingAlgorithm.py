@@ -24,7 +24,7 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
         # failed status list
         self.failed_status: List[ExecutablesStatus] = [
             ExecutablesStatus.BEFORE_COMPENSATION,
-            ExecutablesStatus.DONE_WITH_COMPENSATION,
+            # ExecutablesStatus.DONE_WITH_COMPENSATION,
             ExecutablesStatus.COMPENSATION_FAILED
         ]
 
@@ -35,13 +35,13 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
 
             payload = (picked_option[0], picked_option[1])
 
-            logging.info(f" > black list: {list(self.direction_black_list)}")
+            # logging.info(f" > black list: {list(self.direction_black_list)}")
             # skip all black listed!
             if payload in self.direction_black_list:
                 logging.info(f" > command skipped: {payload}")
                 continue
 
-            logging.info(f" > command: {payload}")
+            # logging.info(f" > command: {payload}")
 
             execution_time: timedelta = DrivingActivity.get_execution_time('0:0:2')
             return DrivingActivity.get_command_from_input(
@@ -63,11 +63,12 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
         payload = (direction, turn)
 
         # if payload is already in black list, skip
+        # this is sometimes the case with compensation commands!
         if payload in self.direction_black_list:
             return
 
         # add to black list
         self.direction_black_list.append(payload)
 
-        logging.info(f" > command blacklisted: {payload}")
-        logging.info(f" > black list: {list(self.direction_black_list)}")
+        logging.info(f"   > command blacklisted: {payload}")
+        logging.info(f"   > black list: {list(self.direction_black_list)}")

@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from threading import Event
 
 from Projects.AutonomousDriving.Services.Driving.Commands.DirectionType import DirectionType
 from Projects.AutonomousDriving.Services.Driving.Commands.DrivingTurn import DrivingTurn
@@ -42,17 +43,20 @@ class BackwardDrivingCommand(IDrivingCommand):
             # wheels to position
             activity.front_wheels_motor.new_result(input_angle=self.wheel_angle)
 
-            # start back wheels rotation
             expected_execution_time: timedelta = self.execution_time
+            direction_event: Event = activity.get_obstacle_sensor_back_event()
             if method_name == 'compensate':
                 # if "compensate" then compensate previous command with the
                 # same amount of execution time but different direction!
                 expected_execution_time = self.total_execution_time()
+                # use different sensor if needed for compensation!
+                direction_event = activity.get_obstacle_sensor_front_event()
 
+            # start back wheels rotation
             passed: bool = activity.back_wheels_motor.new_result(
                 execution_time=expected_execution_time,
                 direction=direction_type,
-                event=activity.get_obstacle_sensor_back_event()
+                event=direction_event
             )
 
             return passed

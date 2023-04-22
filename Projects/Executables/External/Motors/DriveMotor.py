@@ -92,7 +92,6 @@ class DriveMotor(IExternalService):
             self.pwm_channel.ChangeDutyCycle(int(MotorConfig.BASIC_MOTOR_SPEED.value))
 
             # execution time ...
-            # sleep(execution_time.total_seconds())
             interrupted: bool = TimeUtils.nonblocking_sleep(execution_time.total_seconds(), event)
 
             # motor stop

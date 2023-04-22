@@ -63,7 +63,7 @@ class DrivingAlgorithm(IAlgorithm, ABC):
                 else ExecutablesStatus.BEFORE_COMPENSATION
 
             # reset events if needed after command execution!
-            self.driving_activity.event_reset(command=command)
+            self.driving_activity.event_reset(command=command, is_compensation=False)
 
             # report execution e.g. results/status
             self._use_execution_info(command=command, compensation=False)
@@ -77,12 +77,12 @@ class DrivingAlgorithm(IAlgorithm, ABC):
                              f"({TimeUtils.current_time()})")
 
                 # reset events if needed after command compensation!
-                self.driving_activity.event_reset(command=command)
+                self.driving_activity.event_reset(command=command, is_compensation=True)
 
-                self.status = ExecutablesStatus.DONE_WITH_COMPENSATION if compensated \
+                command.status = ExecutablesStatus.DONE_WITH_COMPENSATION if compensated \
                     else ExecutablesStatus.COMPENSATION_FAILED
 
-                command.status = self.status
+                self.status = command.status
                 self.add(command)
 
                 # use info from compensation

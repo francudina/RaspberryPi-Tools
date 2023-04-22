@@ -24,7 +24,8 @@ class Test(TestCase):
             'gpio_warnings_enabled': False,
             'logging_level': 'info',
             'algorithm': None,
-            'max_execution_seconds': None
+            'max_execution_seconds': None,
+            'tabu_queue_size': None
         }
         args: SimpleNamespace = SimpleNamespace(**data)
 

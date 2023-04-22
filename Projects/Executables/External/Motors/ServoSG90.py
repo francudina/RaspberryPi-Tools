@@ -25,7 +25,6 @@ class ServoSG90(IExternalService):
             input_value: float = float(kwargs[MotorConfig.SERVO_INPUT_ANGLE.value])
             next_cycle = self.__calculate_angle_cycle(input_value)
             self.pwm_channel.ChangeDutyCycle(next_cycle)
-            # time.sleep(1)
             interrupted: bool = TimeUtils.blocking_sleep(1)
 
             return True, next_cycle
