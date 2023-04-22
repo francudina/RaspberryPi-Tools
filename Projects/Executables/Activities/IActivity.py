@@ -64,7 +64,7 @@ class IActivity(IQueue[ICommand], ICompensating):
 
                 logging.info(f" \t> compensating command: START ({TimeUtils.current_time()})")
                 compensated: bool = current_command.compensate(activity=self)
-                logging.info(f" \t> compensating command: END {'=> FAILED again' if not compensated else ''} "
+                logging.info(f" \t> compensating command: {'FAILED again' if not compensated else 'END'} "
                              f"({TimeUtils.current_time()})")
 
                 # reset events if needed after command compensation!

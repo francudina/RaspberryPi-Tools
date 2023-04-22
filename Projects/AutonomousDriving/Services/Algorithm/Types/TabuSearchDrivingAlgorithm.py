@@ -23,13 +23,14 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
         self.direction_black_list: deque[Tuple[DirectionType, DrivingTurn]] = deque(maxlen=tabu_queue_size)
         # failed status list
         self.failed_status: List[ExecutablesStatus] = [
+            ExecutablesStatus.BEFORE_COMPENSATION,
             ExecutablesStatus.DONE_WITH_COMPENSATION,
             ExecutablesStatus.COMPENSATION_FAILED
         ]
 
     def _pick_next_command(self) -> IDrivingCommand:
+        options: {} = self._driving_weighted_options()
         while True:
-            options: {} = self._driving_weighted_options()
             picked_option: Tuple[DirectionType, DrivingTurn] = self._roulette_wheel_selection(options=options)
 
             payload = (picked_option[0], picked_option[1])
@@ -40,6 +41,8 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
                 logging.info(f" > command skipped: {payload}")
                 continue
 
+            logging.info(f" > command: {payload}")
+
             execution_time: timedelta = DrivingActivity.get_execution_time('0:0:2')
             return DrivingActivity.get_command_from_input(
                 direction_type=picked_option[0],
@@ -47,13 +50,14 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
                 execution_time=execution_time
             )
 
-    def _use_execution_info(self, command: IDrivingCommand) -> None:
+    def _use_execution_info(self, command: IDrivingCommand, compensation: bool) -> None:
         # skip if command did not fail
         if command.status not in self.failed_status:
             return
 
         # if command failed
-        direction: DirectionType = command.direction_type
+        direction: DirectionType = command.get_compensation_direction() if compensation \
+            else command.direction_type
         turn: DrivingTurn = DrivingActivity.driving_turn_by_angle(command.wheel_angle)
 
         payload = (direction, turn)

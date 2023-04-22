@@ -29,6 +29,6 @@ class RandomDrivingAlgorithm(DrivingAlgorithm):
             execution_time=execution_time
         )
 
-    def _use_execution_info(self, command: IDrivingCommand) -> None:
+    def _use_execution_info(self, command: IDrivingCommand, compensation: bool) -> None:
         # ignoring method calls
         pass

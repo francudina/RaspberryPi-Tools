@@ -47,31 +47,54 @@ class DrivingAlgorithm(IAlgorithm, ABC):
                 logging.info(f"\n# MAX execution time reached, terminating ... ({TimeUtils.current_time()})")
                 break
 
+            logging.info("\n")
             command: IDrivingCommand = self._pick_next_command()
             if not command:
                 continue
 
-            logging.info(f"\n > command {command.activity_type}: START ({TimeUtils.current_time()})")
+            logging.info(f"> command {command.activity_type}: START ({TimeUtils.current_time()})")
 
             command.status = ExecutablesStatus.IN_PROGRESS
+            command.execution_start = datetime.now()
             started: bool = command.start(activity=self.driving_activity)
-
-            if not started:
-                logging.info(f" > execution FAILED ({TimeUtils.current_time()})")
+            command.execution_end = datetime.now()
 
             command.status = ExecutablesStatus.DONE if started \
-                else ExecutablesStatus.FAILED
+                else ExecutablesStatus.BEFORE_COMPENSATION
 
             # reset events if needed after command execution!
             self.driving_activity.event_reset(command=command)
 
             # report execution e.g. results/status
-            self._use_execution_info(command=command)
+            self._use_execution_info(command=command, compensation=False)
+
+            if not started:
+                logging.info(f" > command {command.activity_type} => FAILED ({TimeUtils.current_time()})")
+
+                logging.info(f" \t> compensating command: START ({TimeUtils.current_time()})")
+                compensated: bool = command.compensate(activity=self.driving_activity)
+                logging.info(f" \t> compensating command: {'FAILED again' if not compensated else 'END'} "
+                             f"({TimeUtils.current_time()})")
+
+                # reset events if needed after command compensation!
+                self.driving_activity.event_reset(command=command)
+
+                self.status = ExecutablesStatus.DONE_WITH_COMPENSATION if compensated \
+                    else ExecutablesStatus.COMPENSATION_FAILED
+
+                command.status = self.status
+                self.add(command)
+
+                # use info from compensation
+                self._use_execution_info(command=command, compensation=True)
+                continue
 
             command.status = ExecutablesStatus.BEFORE_STOP
             ended: bool = command.stop(activity=self.driving_activity)
             command.status = ExecutablesStatus.FINISHED if ended \
                 else ExecutablesStatus.STOP_FAILED
+
+            self.status = command.status
 
             logging.info(f" > command {command.activity_type}: END ({TimeUtils.current_time()})")
 
@@ -101,7 +124,7 @@ class DrivingAlgorithm(IAlgorithm, ABC):
         pass
 
     @abstractmethod
-    def _use_execution_info(self, command: IDrivingCommand) -> None:
+    def _use_execution_info(self, command: IDrivingCommand, compensation: bool) -> None:
         pass
 
     def _driving_weighted_options(self) -> {}:
@@ -116,8 +139,11 @@ class DrivingAlgorithm(IAlgorithm, ABC):
 
             (DirectionType.NONE, DrivingTurn.NONE): 0.1
         }
+        tmp = list(options.items())
+        random.shuffle(tmp)
         # sorting by value
-        return {k: v for k, v in sorted(options.items(), key=lambda item: -item[1])}
+        # return {k: v for k, v in sorted(options.items(), key=lambda item: -item[1])}
+        return dict(tmp)
 
     def _roulette_wheel_selection(self, options: {}) -> Tuple[DirectionType, DrivingTurn]:
         max_val: float = sum(probability for _, probability in options.items())

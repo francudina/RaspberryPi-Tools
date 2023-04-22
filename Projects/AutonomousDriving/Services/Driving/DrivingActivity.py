@@ -228,11 +228,11 @@ class DrivingActivity(IActivity):
 
     @staticmethod
     def driving_turn_angle(driving_turn: DrivingTurn) -> float:
-        if driving_turn == DrivingTurn.NONE.value:
+        if driving_turn == DrivingTurn.NONE:
             return MotorConfig.SERVO_STARTING_POINT.value
-        elif driving_turn == DrivingTurn.LEFT.value:
+        elif driving_turn == DrivingTurn.LEFT:
             return MotorConfig.SERVO_LEFT_TURN_POINT.value
-        elif driving_turn == DrivingTurn.RIGHT.value:
+        elif driving_turn == DrivingTurn.RIGHT:
             return MotorConfig.SERVO_RIGHT_TURN_POINT.value
         else:
             return MotorConfig.SERVO_STARTING_POINT.value
