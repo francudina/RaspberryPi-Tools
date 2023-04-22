@@ -33,10 +33,11 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
             picked_option: Tuple[DirectionType, DrivingTurn] = self._roulette_wheel_selection(options=options)
 
             payload = (picked_option[0], picked_option[1])
+
+            logging.info(f" > black list: {list(self.direction_black_list)}")
             # skip all black listed!
             if payload in self.direction_black_list:
-                logging.debug(f" > command skipped: {payload}")
-                logging.debug(f" > black list: {list(self.direction_black_list)}")
+                logging.info(f" > command skipped: {payload}")
                 continue
 
             execution_time: timedelta = DrivingActivity.get_execution_time('0:0:2')
@@ -64,5 +65,5 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
         # add to black list
         self.direction_black_list.append(payload)
 
-        logging.debug(f" > command blacklisted: {payload}")
-        logging.debug(f" > black list: {list(self.direction_black_list)}")
+        logging.info(f" > command blacklisted: {payload}")
+        logging.info(f" > black list: {list(self.direction_black_list)}")

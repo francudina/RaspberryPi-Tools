@@ -21,6 +21,8 @@ def execute_test(test_case: TestCase, args: SimpleNamespace):
 
     arguments: Arguments = Arguments(args)
 
+    logging.basicConfig(level=arguments.logging_level)
+
     pipeline_input: IPipelineInput = IPipelineInput.get_pipeline_input(arguments)
     pipeline = IPipeline(arguments.pipeline_input)
 

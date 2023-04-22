@@ -60,10 +60,13 @@ class DrivingAlgorithm(IAlgorithm, ABC):
                 logging.info(f" > execution FAILED ({TimeUtils.current_time()})")
 
             command.status = ExecutablesStatus.DONE if started \
-                else ExecutablesStatus.BEFORE_COMPENSATION
+                else ExecutablesStatus.FAILED
 
             # reset events if needed after command execution!
             self.driving_activity.event_reset(command=command)
+
+            # report execution e.g. results/status
+            self._use_execution_info(command=command)
 
             command.status = ExecutablesStatus.BEFORE_STOP
             ended: bool = command.stop(activity=self.driving_activity)
@@ -72,8 +75,6 @@ class DrivingAlgorithm(IAlgorithm, ABC):
 
             logging.info(f" > command {command.activity_type}: END ({TimeUtils.current_time()})")
 
-            # report execution e.g. results/status
-            self._use_execution_info(command=command)
             # history info
             self.add(command)
 

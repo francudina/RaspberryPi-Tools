@@ -14,7 +14,7 @@ class RandomDrivingAlgorithm(DrivingAlgorithm):
     def __init__(self,
                  driving_activity: DrivingActivity,
                  max_execution_seconds: int):
-        super().__init__(driving_activity, max_execution_seconds, DrivingAlgorithmType.TABU_SEARCH)
+        super().__init__(driving_activity, max_execution_seconds, DrivingAlgorithmType.RANDOM)
         # options
         self.driving_options: {} = self._driving_weighted_options()
 
