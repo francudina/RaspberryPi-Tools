@@ -27,7 +27,9 @@ class Test(TestCase):
             'max_execution_seconds': None,
             'tabu_queue_size': None,
             'option_success_reward': None,
-            'option_failure_penalty': None
+            'option_failure_penalty': None,
+            'option_success_time_reward': None,
+            'option_failure_time_penalty': None
         }
         args: SimpleNamespace = SimpleNamespace(**data)
 

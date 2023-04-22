@@ -227,6 +227,10 @@ class DrivingActivity(IActivity):
         return timedelta(hours=t.hour, minutes=t.minute, seconds=t.second)
 
     @staticmethod
+    def get_execution_time_from_seconds(total_seconds: float) -> timedelta:
+        return timedelta(seconds=total_seconds)
+
+    @staticmethod
     def driving_turn_angle(driving_turn: DrivingTurn) -> float:
         if driving_turn == DrivingTurn.NONE:
             return MotorConfig.SERVO_STARTING_POINT.value

@@ -148,6 +148,19 @@ class DrivingAlgorithm(IAlgorithm, ABC):
             (DirectionType.NONE, DrivingTurn.NONE): 0.3
         }
 
+    def _driving_time_options(self) -> {}:
+        return {
+            (DirectionType.FORWARD, DrivingTurn.NONE): 3,
+            (DirectionType.FORWARD, DrivingTurn.LEFT): 3,
+            (DirectionType.FORWARD, DrivingTurn.RIGHT): 3,
+
+            (DirectionType.BACKWARD, DrivingTurn.NONE): 2,
+            (DirectionType.BACKWARD, DrivingTurn.LEFT): 2,
+            (DirectionType.BACKWARD, DrivingTurn.RIGHT): 2,
+
+            (DirectionType.NONE, DrivingTurn.NONE): 1
+        }
+
     def _roulette_wheel_selection(self, options: {}) -> Tuple[DirectionType, DrivingTurn]:
         max_val: float = sum(probability for _, probability in options.items())
         pick: float = random.uniform(0, max_val)

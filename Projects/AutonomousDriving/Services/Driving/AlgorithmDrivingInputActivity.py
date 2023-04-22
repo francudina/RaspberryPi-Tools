@@ -95,7 +95,9 @@ class AlgorithmDrivingInputActivity(DrivingActivity, AlgorithmInput):
                 max_execution_seconds=self.arguments.max_execution_seconds,
                 tabu_queue_size=self.arguments.tabu_queue_size,
                 option_success_reward=self.arguments.option_success_reward,
-                option_failure_penalty=self.arguments.option_failure_penalty
+                option_failure_penalty=self.arguments.option_failure_penalty,
+                option_success_time_reward=self.arguments.option_success_time_reward,
+                option_failure_time_penalty=self.arguments.option_failure_time_penalty,
             )
         else:
             raise ValueError(f'Wrong/Not supported DrivingAlgorithmType sent: {self.arguments.algorithm}')

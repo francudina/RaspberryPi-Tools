@@ -36,7 +36,9 @@ class Test(TestCase):
             'max_execution_seconds': max_execution_seconds,
             'tabu_queue_size': tabu_queue_size,
             'option_success_reward': 0.1,
-            'option_failure_penalty': 0.05
+            'option_failure_penalty': 0.05,
+            'option_success_time_reward': 2,
+            'option_failure_time_penalty': 0.5
         }
         args: SimpleNamespace = SimpleNamespace(**data)
 
@@ -62,6 +64,6 @@ class Test(TestCase):
             run_n_times=1,
             algorithm=DrivingAlgorithmType.TABU_SEARCH,
             use_init_commands=False,
-            max_execution_seconds=15,
+            max_execution_seconds=20,
             tabu_queue_size=2
         )
