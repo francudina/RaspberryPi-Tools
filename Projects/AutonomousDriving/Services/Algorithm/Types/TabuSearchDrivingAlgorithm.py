@@ -56,6 +56,12 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
         turn: DrivingTurn = DrivingActivity.driving_turn_by_angle(command.wheel_angle)
 
         payload = (direction, turn)
+
+        # if payload is already in black list, skip
+        if payload in self.direction_black_list:
+            return
+
+        # add to black list
         self.direction_black_list.append(payload)
 
         logging.debug(f" > command blacklisted: {payload}")
