@@ -22,13 +22,14 @@ class Test(TestCase):
             self,
             run_n_times: int,
             algorithm: DrivingAlgorithmType,
+            use_init_commands: bool,
             max_execution_seconds: int,
-            tabu_queue_size: int = None
+            tabu_queue_size: int = None,
     ):
         data: {} = {
             'pipeline_input': PipelineInputType.ALGORITHM.name,
             'devices_config_file': device_config,
-            'commands': commands,
+            'commands': commands if use_init_commands else None,
             'gpio_warnings_enabled': False,
             'logging_level': 'info',
             'algorithm': algorithm.name,
@@ -47,6 +48,7 @@ class Test(TestCase):
         self._execute(
             run_n_times=1,
             algorithm=DrivingAlgorithmType.RANDOM,
+            use_init_commands=True,
             max_execution_seconds=6
         )
 
@@ -57,6 +59,7 @@ class Test(TestCase):
         self._execute(
             run_n_times=1,
             algorithm=DrivingAlgorithmType.TABU_SEARCH,
-            max_execution_seconds=15,
+            use_init_commands=False,
+            max_execution_seconds=20,
             tabu_queue_size=2
         )
