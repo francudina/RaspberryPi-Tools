@@ -1,3 +1,4 @@
+import logging
 from collections import deque
 from typing import Tuple, List
 from datetime import timedelta
@@ -34,6 +35,8 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
             payload = (picked_option[0], picked_option[1])
             # skip all black listed!
             if payload in self.direction_black_list:
+                logging.debug(f" > command skipped: {payload}")
+                logging.debug(f" > black list: {list(self.direction_black_list)}")
                 continue
 
             execution_time: timedelta = DrivingActivity.get_execution_time('0:0:2')
@@ -54,3 +57,6 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
 
         payload = (direction, turn)
         self.direction_black_list.append(payload)
+
+        logging.debug(f" > command blacklisted: {payload}")
+        logging.debug(f" > black list: {list(self.direction_black_list)}")

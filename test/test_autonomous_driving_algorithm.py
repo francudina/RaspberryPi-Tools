@@ -51,9 +51,9 @@ class Test(TestCase):
         )
 
     def test_tabu_driving_happy_path(self):
-        # setting lower probability to avoid obstacle detection
+        # setting higher to force failures of commands
         GPIO.CURRENT_THRESHOLD = 0.4
-        GPIO.CURRENT_SLEEP = 0.5
+        GPIO.CURRENT_SLEEP = 1
         self._execute(
             run_n_times=1,
             algorithm=DrivingAlgorithmType.TABU_SEARCH,
