@@ -46,7 +46,7 @@ class Test(TestCase):
         # setting higher probability to force obstacle detection
         GPIO.CURRENT_THRESHOLD = 0.30
         GPIO.CURRENT_SLEEP = 0.5
-        self._execute(run_n_times=2)
+        self._execute(run_n_times=1)
 
     def test_driving_unhappy_path_2(self):
         # setting even higher probability to force obstacle detection

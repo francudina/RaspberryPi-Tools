@@ -53,7 +53,7 @@ class Test(TestCase):
             run_n_times=1,
             algorithm=DrivingAlgorithmType.RANDOM,
             use_init_commands=True,
-            max_execution_seconds=6
+            max_execution_seconds=5
         )
 
     def test_tabu_driving_happy_path(self):
@@ -64,6 +64,6 @@ class Test(TestCase):
             run_n_times=1,
             algorithm=DrivingAlgorithmType.TABU_SEARCH,
             use_init_commands=False,
-            max_execution_seconds=20,
+            max_execution_seconds=10,
             tabu_queue_size=2
         )
