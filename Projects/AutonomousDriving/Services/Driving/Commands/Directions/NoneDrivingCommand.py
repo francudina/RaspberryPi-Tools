@@ -44,12 +44,17 @@ class NoneDrivingCommand(IDrivingCommand):
             # wheels to position
             activity.front_wheels_motor.new_result(input_angle=self.wheel_angle)
 
+            # no usage of sensors
+            if not activity.using_front_sensor and not activity.using_back_sensor:
+                interrupted: bool = TimeUtils.blocking_sleep(self.execution_time.total_seconds())
+                return not interrupted
+
             # calculate nonblocking thread sleep for event listeners!
-            sleep_between_sec: float = 0.5
+            sleep_between_sec: float = self.execution_time.total_seconds()
             if activity.using_front_sensor:
-                sleep_between_sec /= 3
+                sleep_between_sec /= 50
             if activity.using_back_sensor:
-                sleep_between_sec /= 3
+                sleep_between_sec /= 50
 
             interrupted_front, interrupted_back = False, False
             start: datetime = datetime.now()

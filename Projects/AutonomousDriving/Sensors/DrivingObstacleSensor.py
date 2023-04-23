@@ -27,7 +27,7 @@ class DrivingObstacleSensor(ObstacleSensor):
         # check channel state
         state = GPIO.input(channel)
 
-        logging.info(f"\t(?) {self.sensor_for_direction.name} - something detected: {state}")
+        logging.info(f"\t(?) {self.sensor_for_direction.name}: something detected ({state})")
 
         # if change was to the HIGH then skip!
         if state == GPIO.HIGH:
@@ -40,4 +40,4 @@ class DrivingObstacleSensor(ObstacleSensor):
             self.activity.get_obstacle_sensor_back_event().set()
 
         # set info that obstacle was found
-        logging.info(f"\t(!) {self.sensor_for_direction.name} - obstacle detected ({TimeUtils.current_time()})")
+        logging.info(f"\t(!) {self.sensor_for_direction.name}: obstacle detected ({TimeUtils.current_time()})")
