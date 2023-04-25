@@ -102,7 +102,7 @@ def parser_config() -> argparse.ArgumentParser:
     parser.add_argument('--max-seconds',
                         dest='max_execution_seconds',
                         type=int,
-                        default=30,
+                        default=45,
                         help='maximum number of seconds allowed for execution; '
                              'default: 30')
     parser.add_argument('--tabu-size',
@@ -126,7 +126,7 @@ def parser_config() -> argparse.ArgumentParser:
     parser.add_argument('--success-time-reward',
                         dest='option_success_time_reward',
                         type=float,
-                        default=2,
+                        default=1.5,
                         help='(Tabu algorithm only!) reward direction time factor for which was successful; '
                              'default: 2')
     parser.add_argument('--success-time-penalty',

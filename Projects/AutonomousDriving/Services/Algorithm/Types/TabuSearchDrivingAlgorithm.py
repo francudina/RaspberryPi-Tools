@@ -77,6 +77,11 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
         # direction & turn pair as command key/id
         payload = (direction, turn)
 
+        # if payload is already in black list, skip
+        # this is sometimes the case with compensation commands!
+        if payload in self.direction_black_list:
+            return
+
         # add total execution time to that command as history!
         if not compensation:
             # update execution time history
@@ -100,11 +105,6 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
         logging.debug("   > options update:\n{}".format(self.__options_to_string(self.execution_options)))
         logging.info("   > time options update:\n{}".format(self.__options_to_string(self.execution_time_options)))
 
-        # if payload is already in black list, skip
-        # this is sometimes the case with compensation commands!
-        if payload in self.direction_black_list:
-            return
-
         # add to black list
         self.direction_black_list.append(payload)
 
@@ -116,28 +116,28 @@ class TabuSearchDrivingAlgorithm(DrivingAlgorithm):
 
     def __add_reward(self, command: Tuple[DirectionType, DrivingTurn], compensation: bool) -> None:
         # skip compensation reward
-        if compensation:
+        if compensation or command not in self.execution_options.keys():
             return
 
         # 1. likelihood reward
         self.execution_options[command] += self.option_success_reward
-        if self.execution_options[command] > 10:
+        if self.execution_options[command] > 4:
             # restrict with the highest margin and reset
-            self.execution_options[command] = 5
+            self.execution_options[command] = 2
 
         # 2. time reward: multiply value
         self.execution_time_options[command] *= self.option_success_time_reward
 
     def __add_penalty(self, command: Tuple[DirectionType, DrivingTurn], compensation: bool) -> None:
         # skip compensation penalty
-        if compensation:
+        if compensation or command not in self.execution_options.keys():
             return
 
         # 1. likelihood penalty
         self.execution_options[command] -= self.option_failure_penalty
         if self.execution_options[command] < 0:
             # reset value to low non-negative and non-zero number
-            self.execution_options[command] = 0.0001
+            self.execution_options[command] = 0.05
 
         # 2. time reward: multiply value
         self.execution_time_options[command] *= self.option_failure_time_penalty
