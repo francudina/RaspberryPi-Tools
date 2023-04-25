@@ -129,7 +129,7 @@ def parser_config() -> argparse.ArgumentParser:
                         default=1.5,
                         help='(Tabu algorithm only!) reward direction time factor for which was successful; '
                              'default: 2')
-    parser.add_argument('--success-time-penalty',
+    parser.add_argument('--failure-time-penalty',
                         dest='option_failure_time_penalty',
                         type=float,
                         default=0.5,
